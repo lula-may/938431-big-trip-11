@@ -1,11 +1,6 @@
 import AbstractComponent from "./abstract-component.js";
 import {capitalizeFirstLetter} from "../utils/common.js";
-
-const SortType = {
-  EVENT: `event`,
-  TIME: `time`,
-  PRICE: `price`
-};
+import {SortType} from "../const.js";
 
 const getSortMarkup = (activeSort) => {
   const items = Object.values(SortType);

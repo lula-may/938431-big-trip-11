@@ -1,4 +1,5 @@
-const POINT_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
+import {EVENT_TYPES} from "../const.js";
+
 const DESTINATIONS = [`Chamonix`, `Geneva`, `Amsterdam`];
 const DESCRIPTION_TEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 const OPTIONS = [`Choose radio station`, `Add meal`, `Choose seats`, `Add luggage`, `Travel by train`, `Switch to comfort class`, `Coffee to bed`];
@@ -93,12 +94,14 @@ const getPoint = () => {
   dateTo.setMinutes(dateFrom.getMinutes() + getRandomInteger(MIN_DURATION_IN_MINUTES, MAX_DURATION_IN_MINUTES));
   const isDescription = Math.random() > 0.5;
   return {
-    type: getRandomItem(POINT_TYPES),
+    id: Math.round(new Date() * Math.random()).toString(),
+    type: getRandomItem(EVENT_TYPES),
     dateFrom,
     dateTo,
     destinationName: isDescription ? getRandomItem(DESTINATIONS) : ``,
     destinationDescription: isDescription ? getDestinationDescription() : ``,
     destinationPicures: isDescription ? getPictures() : null,
+    price: getRandomInteger(20, 1000),
     offers: getRandomOffers(),
     isFavorite: Math.random() > 0.5
   };

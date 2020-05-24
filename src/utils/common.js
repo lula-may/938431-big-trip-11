@@ -1,4 +1,5 @@
 import moment from "moment";
+import {MEANS_OF_TRANSPORT} from "../const.js";
 
 const capitalizeFirstLetter = (word) => {
   const firstLetter = word.slice(0, 1);
@@ -13,4 +14,19 @@ const formatDurationTime = (duration) => {
   return `${isHour ? `${hours}H ` : ``}${minutes}M`;
 };
 
-export {capitalizeFirstLetter, formatDurationTime};
+const formatFullDate = (date) => {
+  return moment(date).format(`DD/MM/YY HH:mm`);
+};
+
+const transportEvents = new Set(MEANS_OF_TRANSPORT);
+
+const getEventDescription = (type, place) => {
+  const placeString = place || ``;
+  if (transportEvents.has(type)) {
+    return `${type} to ${placeString}`;
+  }
+  return `${type} in ${placeString}`;
+};
+
+
+export {capitalizeFirstLetter, formatDurationTime, formatFullDate, getEventDescription};

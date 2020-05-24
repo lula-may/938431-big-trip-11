@@ -1,6 +1,6 @@
-const TRANSPORTS = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
+const MEANS_OF_TRANSPORT = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
 const PLACES = [`check-in`, `sightseeing`, `restaurant`];
-const EVENT_TYPES = [...TRANSPORTS, ...PLACES];
+const EVENT_TYPES = [...MEANS_OF_TRANSPORT, ...PLACES];
 
 const SortType = {
   EVENT: `event`,
@@ -8,4 +8,4 @@ const SortType = {
   PRICE: `price`
 };
 
-export {TRANSPORTS, PLACES, EVENT_TYPES, SortType};
+export {MEANS_OF_TRANSPORT, PLACES, EVENT_TYPES, SortType};

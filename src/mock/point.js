@@ -98,7 +98,7 @@ const getPoint = () => {
     type: getRandomItem(EVENT_TYPES),
     dateFrom,
     dateTo,
-    destinationName: isDescription ? getRandomItem(DESTINATIONS) : ``,
+    destinationName: getRandomItem(DESTINATIONS),
     destinationDescription: isDescription ? getDestinationDescription() : ``,
     destinationPicures: isDescription ? getPictures() : null,
     price: getRandomInteger(20, 1000),

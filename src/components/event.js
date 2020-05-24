@@ -1,16 +1,7 @@
 import AbstractComponent from "./abstract-component";
-import {formatDurationTime} from "../utils/common.js";
-import {TRANSPORTS} from "../const.js";
+import {formatDurationTime, getEventDescription, capitalizeFirstLetter} from "../utils/common.js";
 import moment from "moment";
 
-const transportEvents = new Set(TRANSPORTS);
-
-const getEventDescription = (type, place) => {
-  if (transportEvents.has(type)) {
-    return `${type} to ${place}`;
-  }
-  return `${type} in ${place}`;
-};
 
 const getOffersMarkup = (offers) => {
   return offers.slice(0, 3)
@@ -35,7 +26,7 @@ const getEventTemplate = (event) => {
   const duration = to.diff(from, `minutes`);
   const durationText = formatDurationTime(duration);
   const offersMarkup = getOffersMarkup(offers);
-  const description = getEventDescription(type, destinationName);
+  const description = capitalizeFirstLetter(getEventDescription(type, destinationName));
 
   return (
     `<li class="trip-events__item">

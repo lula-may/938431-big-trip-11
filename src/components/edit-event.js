@@ -21,6 +21,12 @@ const getRadioListMarkup = (items, number, checkedItem) => {
   .join(`\n`);
 };
 
+const getDatasetMarkup = (destinations) => {
+  return destinations
+    .map((item) => `<option value="${item}"></option>`)
+    .join(`\n`);
+};
+
 const getOffersMarkup = (offers, availableOffers, number) => {
   return availableOffers
     .map((item) => {
@@ -43,13 +49,15 @@ const getOffersMarkup = (offers, availableOffers, number) => {
     .join(`\n`);
 };
 
-const getEditFormTemplate = (number, event, availableOffers) => {
-  const {type, destinationName, dateFrom, dateTo, price, isFavorite, offers} = event;
+const getEditFormTemplate = (number, event, availableOffers, availableDestinations) => {
+  const {type, destination, dateFrom, dateTo, price, isFavorite, offers} = event;
   const fullDateFrom = formatFullDate(dateFrom);
   const fullDateTo = formatFullDate(dateTo);
   const transportListMarkup = getRadioListMarkup(MEANS_OF_TRANSPORT, number, type);
   const activityListMarkup = getRadioListMarkup(PLACES, number, type);
   const eventTitle = getEventDescription(type);
+  const destinations = availableDestinations.map((item) => item.name);
+  const destinationsDatasetMarkup = getDatasetMarkup(destinations);
   const offersMarkup = getOffersMarkup(offers, availableOffers, number);
   return (
     `<form class="event  event--edit" action="#" method="post">
@@ -78,11 +86,9 @@ const getEditFormTemplate = (number, event, availableOffers) => {
           <label class="event__label  event__type-output" for="event-destination-${number}">
             ${eventTitle}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${number}" type="text" name="event-destination" value="${destinationName}" list="destination-list-${number}">
+          <input class="event__input  event__input--destination" id="event-destination-${number}" type="text" name="event-destination" value="${destination}" list="destination-list-${number}">
           <datalist id="destination-list-${number}">
-            <option value="Amsterdam"></option>
-            <option value="Geneva"></option>
-            <option value="Chamonix"></option>
+            ${destinationsDatasetMarkup}
           </datalist>
         </div>
 
@@ -136,15 +142,16 @@ const getEditFormTemplate = (number, event, availableOffers) => {
 };
 
 export default class EditEvent extends AbstractComponent {
-  constructor(event, index, availableOffers) {
+  constructor(event, index, availableOffers, availableDestinations) {
     super();
     this._event = event;
     this._index = index;
     this._offers = availableOffers;
+    this._destinations = availableDestinations;
   }
 
   getTemplate() {
-    return getEditFormTemplate(this._index, this._event, this._offers);
+    return getEditFormTemplate(this._index, this._event, this._offers, this._destinations);
   }
 
   setRollupButtonClickHandler(handler) {

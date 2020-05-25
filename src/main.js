@@ -4,7 +4,7 @@ import HeaderInfoComponent from "./components/header-info.js";
 import MainNavComponent from "./components/main-nav.js";
 import PointsModel from "./models/points.js";
 import {RenderPosition, render} from "./utils/render.js";
-import {generatePoints} from "./mock/point.js";
+import {generatePoints, allDestinations} from "./mock/point.js";
 
 const POINTS_AMOUNT = 10;
 
@@ -22,6 +22,6 @@ pointsModel.setPoints(points);
 render(headerContainerElement, headerInfoComponent, RenderPosition.AFTERBEGIN);
 render(headerControlsElement, mainNavComponent);
 render(headerControlsElement, filterComponent);
-const boardController = new BoardController(mainContainerElement, pointsModel);
+const boardController = new BoardController(mainContainerElement, pointsModel, allDestinations);
 boardController.render();
 

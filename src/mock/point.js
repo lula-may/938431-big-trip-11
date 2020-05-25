@@ -98,13 +98,23 @@ const getDestinationDescription = () => {
   return descriptions.join(` `);
 };
 
+const generateDestinations = () => {
+  return DESTINATIONS.map((name) => {
+    return {
+      name,
+      description: getDestinationDescription(),
+      pictures: getPictures()
+    };
+  });
+};
+
+const allDestinations = generateDestinations();
 
 const getPoint = () => {
   const type = getRandomItem(EVENT_TYPES);
   const dateFrom = getRandomStartDate();
   const dateTo = new Date(dateFrom);
   dateTo.setMinutes(dateFrom.getMinutes() + getRandomInteger(MIN_DURATION_IN_MINUTES, MAX_DURATION_IN_MINUTES));
-  const isDescription = Math.random() > 0.5;
   const offers = getRandomOffersForType(type);
 
   return {
@@ -112,9 +122,7 @@ const getPoint = () => {
     type,
     dateFrom,
     dateTo,
-    destinationName: getRandomItem(DESTINATIONS),
-    destinationDescription: isDescription ? getDestinationDescription() : ``,
-    destinationPicures: isDescription ? getPictures() : null,
+    destination: getRandomItem(DESTINATIONS),
     price: getRandomInteger(20, 1000),
     offers,
     isFavorite: Math.random() > 0.5
@@ -129,5 +137,4 @@ const generatePoints = (amount) => {
   return points;
 };
 
-
-export {generatePoints, offersByType};
+export {generatePoints, offersByType, allDestinations};

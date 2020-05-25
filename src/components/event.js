@@ -18,7 +18,7 @@ const getOffersMarkup = (offers) => {
 };
 
 const getEventTemplate = (event) => {
-  const {type, dateFrom, dateTo, destinationName, price, offers} = event;
+  const {type, dateFrom, dateTo, destination, price, offers} = event;
   const from = moment(dateFrom);
   const to = moment(dateTo);
   const timeFrom = from.format(`HH:mm`);
@@ -26,7 +26,7 @@ const getEventTemplate = (event) => {
   const duration = to.diff(from, `minutes`);
   const durationText = formatDurationTime(duration);
   const offersMarkup = getOffersMarkup(offers);
-  const description = getEventDescription(type, destinationName);
+  const description = getEventDescription(type, destination);
 
   return (
     `<li class="trip-events__item">

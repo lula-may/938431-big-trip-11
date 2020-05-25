@@ -1,6 +1,6 @@
 import EditEventComponent from "../components/edit-event.js";
 import EventComponent from "../components/event.js";
-import {render, replace} from "../utils/render.js";
+import {render, replace, remove} from "../utils/render.js";
 import {offersByType} from "../mock/point.js";
 
 const Mode = {
@@ -10,8 +10,9 @@ const Mode = {
 };
 
 export default class EventController {
-  constructor(container, onViewChange) {
+  constructor(container, destinations, onViewChange) {
     this._container = container;
+    this._destinations = destinations;
     this._eventComponent = null;
     this._editEventComponent = null;
     this._mode = Mode.DEFAULT;
@@ -26,7 +27,7 @@ export default class EventController {
     this._event = event;
     this._offers = offersByType[event.type];
     this._eventComponent = new EventComponent(event);
-    this._editEventComponent = new EditEventComponent(event, index, this._offers);
+    this._editEventComponent = new EditEventComponent(event, index, this._offers, this._destinations);
 
     this._eventComponent.setRollupButtonClickHandler(() => {
       this._replacePointToEdit();
@@ -43,6 +44,12 @@ export default class EventController {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToPoint();
     }
+  }
+
+  destroy() {
+    remove(this._eventComponent);
+    remove(this._editEventComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _replacePointToEdit() {

@@ -14,6 +14,27 @@ const DESCRIPTION_MAX_SENTENCES = 5;
 const MIN_OPTION_PRICE = 5;
 const MAX_OPTION_PRICE = 150;
 
+
+const getRandomInteger = (min, max) => {
+  return Math.round(Math.random() * (max - min) + min);
+};
+
+const getRandomItem = (items) => {
+  const randomIndex = getRandomInteger(0, items.length - 1);
+  return items[randomIndex];
+};
+
+const getRandomItems = (items, amount) => {
+  const subList = [];
+  const copiedItems = items.slice();
+  for (let i = 0; i < amount; i++) {
+    const randomIndex = getRandomInteger(0, copiedItems.length - 1);
+    const newItem = copiedItems.splice(randomIndex, 1);
+    subList.push(...newItem);
+  }
+  return subList;
+};
+
 const getPictures = () => {
   const pictures = [];
   const amount = getRandomInteger(0, 5);
@@ -28,38 +49,28 @@ const getPictures = () => {
   return pictures;
 };
 
-const getRandomOffers = () => {
-  const amount = getRandomInteger(0, OPTIONS.length);
-  const offers = [];
-  if (amount > 0) {
-    for (let i = 1; i <= amount; i++) {
-      const offer = {};
-      offer.title = getRandomItem(OPTIONS);
-      offer.price = getRandomInteger(MIN_OPTION_PRICE, MAX_OPTION_PRICE);
-      offers.push(offer);
-    }
-  }
-  return offers;
+const generateOffersForTypes = () => {
+  const maxAmount = 5;
+  const offersForTypes = EVENT_TYPES.reduce((acc, type) => {
+    const amount = getRandomInteger(0, maxAmount);
+    const offerTitles = getRandomItems(OPTIONS, amount);
+    acc[type] = offerTitles.map((title) => {
+      return {
+        title,
+        price: getRandomInteger(MIN_OPTION_PRICE, MAX_OPTION_PRICE)
+      };
+    });
+    return acc;
+  }, {});
+  return offersForTypes;
 };
 
-const getRandomInteger = (min, max) => {
-  return Math.round(Math.random() * (max - min) + min);
-};
+const offersByType = generateOffersForTypes();
 
-const getRandomItem = (items) => {
-  const randomIndex = getRandomInteger(0, items.length - 1);
-  return items[randomIndex];
-};
-
-const getRandomItems = (items, amount) => {
-  const subList = [];
-  const copiedItems = items.slice();
-  for (let i = 0; i <= amount; i++) {
-    const randomIndex = getRandomInteger(0, copiedItems.length - 1);
-    const newItem = copiedItems.splice(randomIndex, 1);
-    subList.push(newItem);
-  }
-  return subList;
+const getRandomOffersForType = (type) => {
+  const availableOffers = offersByType[type];
+  const amount = getRandomInteger(0, availableOffers.length);
+  return getRandomItems(availableOffers, amount);
 };
 
 const minDate = new Date();
@@ -89,20 +100,23 @@ const getDestinationDescription = () => {
 
 
 const getPoint = () => {
+  const type = getRandomItem(EVENT_TYPES);
   const dateFrom = getRandomStartDate();
   const dateTo = new Date(dateFrom);
   dateTo.setMinutes(dateFrom.getMinutes() + getRandomInteger(MIN_DURATION_IN_MINUTES, MAX_DURATION_IN_MINUTES));
   const isDescription = Math.random() > 0.5;
+  const offers = getRandomOffersForType(type);
+
   return {
     id: Math.round(new Date() * Math.random()).toString(),
-    type: getRandomItem(EVENT_TYPES),
+    type,
     dateFrom,
     dateTo,
     destinationName: getRandomItem(DESTINATIONS),
     destinationDescription: isDescription ? getDestinationDescription() : ``,
     destinationPicures: isDescription ? getPictures() : null,
     price: getRandomInteger(20, 1000),
-    offers: getRandomOffers(),
+    offers,
     isFavorite: Math.random() > 0.5
   };
 };
@@ -115,4 +129,5 @@ const generatePoints = (amount) => {
   return points;
 };
 
-export {generatePoints};
+
+export {generatePoints, offersByType};

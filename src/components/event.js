@@ -1,5 +1,5 @@
 import AbstractComponent from "./abstract-component";
-import {formatDurationTime, getEventDescription, capitalizeFirstLetter} from "../utils/common.js";
+import {formatDurationTime, getEventDescription} from "../utils/common.js";
 import moment from "moment";
 
 
@@ -26,7 +26,7 @@ const getEventTemplate = (event) => {
   const duration = to.diff(from, `minutes`);
   const durationText = formatDurationTime(duration);
   const offersMarkup = getOffersMarkup(offers);
-  const description = capitalizeFirstLetter(getEventDescription(type, destinationName));
+  const description = getEventDescription(type, destinationName);
 
   return (
     `<li class="trip-events__item">

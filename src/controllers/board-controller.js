@@ -14,6 +14,7 @@ export default class BoardController {
     this._listComponent = new ListComponent();
     this._sortComponent = new SortComponent();
     this._showedPointsControllers = [];
+    this._showedControllersCount = 0;
     this._activeSort = SortType.EVENT;
   }
 
@@ -24,21 +25,22 @@ export default class BoardController {
 
     const listContainerElement = this._listComponent.getElement();
     const tripDates = getUniqueDates(points);
-    let count = 1;
+    let daysCount = 1;
     tripDates.forEach((date) => {
-      const dayComponent = new DayComponent(count, date, this._activeSort);
+      const dayComponent = new DayComponent(daysCount, date, this._activeSort);
       render(listContainerElement, dayComponent);
       const pointsContainer = dayComponent.getElement().querySelector(`.trip-events__list`);
       // Получаем список событий дня
       const pointsByDay = this._pointsModel.getPointsByDate(date);
-      count++;
       // Для каждого события:
       pointsByDay.forEach((point) => {
+        this._showedControllersCount++;
         // - Создать контроллер
         const newController = new EventController(pointsContainer);
-        newController.render(point);
+        newController.render(point, this._showedControllersCount);
         this._showedPointsControllers.push(newController);
       });
+      daysCount++;
     });
   }
 }

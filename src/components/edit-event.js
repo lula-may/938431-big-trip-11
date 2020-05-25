@@ -2,6 +2,10 @@ import AbstractComponent from "./abstract-component";
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventDescription, formatFullDate} from "../utils/common.js";
 
+const getShortName = (text) => {
+  return text.split(` `).pop().toLowerCase();
+};
+
 const getRadioListMarkup = (items, number, checkedItem) => {
   return items.map((type) => {
     const typeText = capitalizeFirstLetter(type);
@@ -17,13 +21,36 @@ const getRadioListMarkup = (items, number, checkedItem) => {
   .join(`\n`);
 };
 
-const getEditFormTemplate = (number, event) => {
-  const {type, destinationName, dateFrom, dateTo, price, isFavorite} = event;
+const getOffersMarkup = (offers, availableOffers, number) => {
+  return availableOffers
+    .map((item) => {
+      const title = item.title;
+      const shortTitle = getShortName(title);
+      const isChecked = offers.some((offer) => offer.title === title);
+      const price = item.price;
+      return (
+        `<div class="event__offer-selector">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${shortTitle}-${number}"
+            type="checkbox" name="event-offer-${shortTitle}" ${isChecked ? `checked` : ``}>
+          <label class="event__offer-label" for="event-offer-${shortTitle}-${number}">
+            <span class="event__offer-title">${title}</span>
+            &plus;
+            &euro;&nbsp;<span class="event__offer-price">${price}</span>
+          </label>
+        </div>`
+      );
+    })
+    .join(`\n`);
+};
+
+const getEditFormTemplate = (number, event, availableOffers) => {
+  const {type, destinationName, dateFrom, dateTo, price, isFavorite, offers} = event;
   const fullDateFrom = formatFullDate(dateFrom);
   const fullDateTo = formatFullDate(dateTo);
   const transportListMarkup = getRadioListMarkup(MEANS_OF_TRANSPORT, number, type);
   const activityListMarkup = getRadioListMarkup(PLACES, number, type);
-  const eventTitle = getEventDescription(capitalizeFirstLetter(type));
+  const eventTitle = getEventDescription(type);
+  const offersMarkup = getOffersMarkup(offers, availableOffers, number);
   return (
     `<form class="event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -99,52 +126,8 @@ const getEditFormTemplate = (number, event) => {
       <section class="event__details">
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
           <div class="event__available-offers">
-            <div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${number}" type="checkbox" name="event-offer-luggage" checked>
-              <label class="event__offer-label" for="event-offer-luggage-${number}">
-                <span class="event__offer-title">Add luggage</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">30</span>
-              </label>
-            </div>
-
-            <div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-${number}" type="checkbox" name="event-offer-comfort" checked>
-              <label class="event__offer-label" for="event-offer-comfort-${number}">
-                <span class="event__offer-title">Switch to comfort class</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">100</span>
-              </label>
-            </div>
-
-            <div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-${number}" type="checkbox" name="event-offer-meal">
-              <label class="event__offer-label" for="event-offer-meal-${number}">
-                <span class="event__offer-title">Add meal</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">15</span>
-              </label>
-            </div>
-
-            <div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-${number}" type="checkbox" name="event-offer-seats">
-              <label class="event__offer-label" for="event-offer-seats-${number}">
-                <span class="event__offer-title">Choose seats</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">5</span>
-              </label>
-            </div>
-
-            <div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-${number}" type="checkbox" name="event-offer-train">
-              <label class="event__offer-label" for="event-offer-train-${number}">
-                <span class="event__offer-title">Travel by train</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">40</span>
-              </label>
-            </div>
+          ${offersMarkup}
           </div>
         </section>
       </section>
@@ -153,13 +136,14 @@ const getEditFormTemplate = (number, event) => {
 };
 
 export default class EditEvent extends AbstractComponent {
-  constructor(event, index) {
+  constructor(event, index, availableOffers) {
     super();
     this._event = event;
     this._index = index;
+    this._offers = availableOffers;
   }
 
   getTemplate() {
-    return getEditFormTemplate(this._index, this._event);
+    return getEditFormTemplate(this._index, this._event, this._offers);
   }
 }

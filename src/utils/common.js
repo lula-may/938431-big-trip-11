@@ -21,11 +21,12 @@ const formatFullDate = (date) => {
 const transportEvents = new Set(MEANS_OF_TRANSPORT);
 
 const getEventDescription = (type, place) => {
+  const typeString = capitalizeFirstLetter(type);
   const placeString = place || ``;
   if (transportEvents.has(type)) {
-    return `${type} to ${placeString}`;
+    return `${typeString} to ${placeString}`;
   }
-  return `${type} in ${placeString}`;
+  return `${typeString} in ${placeString}`;
 };
 
 

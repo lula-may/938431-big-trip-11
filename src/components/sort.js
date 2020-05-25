@@ -2,6 +2,7 @@ import AbstractComponent from "./abstract-component.js";
 import {capitalizeFirstLetter} from "../utils/common.js";
 import {SortType} from "../const.js";
 
+const SORT_PREFIX = `sort-`;
 const getSortMarkup = (activeSort) => {
   const items = Object.values(SortType);
   return items
@@ -46,5 +47,16 @@ export default class Sort extends AbstractComponent {
 
   getTemplate() {
     return getSortingTemplate(this._activeSort);
+  }
+
+  setSortTypeChangeHandler(handler) {
+    this.getElement().addEventListener(`change`, (evt) => {
+      const sortType = evt.target.id.replace(SORT_PREFIX, ``);
+      if (sortType === this._activeSort) {
+        return;
+      }
+      this._activeSort = sortType;
+      handler(sortType);
+    });
   }
 }

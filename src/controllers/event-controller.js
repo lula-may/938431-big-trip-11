@@ -10,13 +10,14 @@ const Mode = {
 };
 
 export default class EventController {
-  constructor(container) {
+  constructor(container, onViewChange) {
     this._container = container;
     this._eventComponent = null;
     this._editEventComponent = null;
     this._mode = Mode.DEFAULT;
     this._event = null;
     this._offers = [];
+    this._onViewChange = onViewChange;
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
@@ -38,7 +39,14 @@ export default class EventController {
     render(this._container, this._eventComponent);
   }
 
+  setDefaultView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceEditToPoint();
+    }
+  }
+
   _replacePointToEdit() {
+    this._onViewChange();
     replace(this._editEventComponent, this._eventComponent);
     this._mode = Mode.EDIT;
     document.addEventListener(`keydown`, this._onEscKeyDown);

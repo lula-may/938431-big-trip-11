@@ -16,6 +16,8 @@ export default class BoardController {
     this._showedPointsControllers = [];
     this._showedControllersCount = 0;
     this._activeSort = SortType.EVENT;
+
+    this._onViewChange = this._onViewChange.bind(this);
   }
 
   render() {
@@ -36,11 +38,15 @@ export default class BoardController {
       pointsByDay.forEach((point) => {
         this._showedControllersCount++;
         // - Создать контроллер
-        const newController = new EventController(pointsContainer);
+        const newController = new EventController(pointsContainer, this._onViewChange);
         newController.render(point, this._showedControllersCount);
         this._showedPointsControllers.push(newController);
       });
       daysCount++;
     });
+  }
+
+  _onViewChange() {
+    this._showedPointsControllers.forEach((controller) => controller.setDefaultView());
   }
 }

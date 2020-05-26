@@ -1,6 +1,8 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventDescription, formatFullDate} from "../utils/common.js";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 const getShortName = (text) => {
   return text.split(` `).pop().toLowerCase();
@@ -157,10 +159,12 @@ export default class EditEvent extends AbstractSmartComponent {
 
     this._availableOffers = availableOffers;
     this._availableDestinations = availableDestinations;
+    this._flatpickers = [];
 
     this._rollupHandler = null;
 
     this._subscribeOnEvents();
+    this._applyFlatpickers();
   }
 
   getTemplate() {
@@ -187,6 +191,42 @@ export default class EditEvent extends AbstractSmartComponent {
     const rollupButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
     this._rollupHandler = handler;
     rollupButtonElement.addEventListener(`click`, handler);
+  }
+
+  _applyFlatpickers() {
+    const element = this.getElement();
+    const dateFromInputElement = element.querySelector(`#event-start-time-${this._id}`);
+    const dateToElement = element.querySelector(`#event-end-time-${this._id}`);
+    this._dateFromFlatpicker = flatpickr(dateFromInputElement, {
+      altInput: true,
+      altFormat: `d/m/y H:i`,
+      allowInput: true,
+      defaultDate: this._dateFrom || `today`,
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      onChange: (days) => {
+        this._dateFrom = days[0];
+        if (this._dateTo < this._dateFrom) {
+          this._dateTo = new Date(this._dateFrom);
+          this._dateToFlatpicker.setDate(this._dateTo);
+        }
+        this._dateToFlatpicker.set(`minDate`, this._dateFrom);
+      }
+    });
+
+    this._dateToFlatpicker = flatpickr(dateToElement, {
+      altInput: true,
+      altFormat: `d/m/y H:i`,
+      allowInput: true,
+      defaultDate: this._dateTo || `today`,
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      minDate: this._dateFrom,
+      onChange: (days) => {
+        this._dateTo = days[0];
+      }
+    });
+
   }
 
   _subscribeOnEvents() {

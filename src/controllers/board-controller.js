@@ -15,7 +15,6 @@ export default class BoardController {
     this._sortComponent = new SortComponent();
     this._dayComponents = [];
     this._showedPointsControllers = [];
-    this._showedControllersCount = 0;
     this._activeSort = SortType.EVENT;
 
     this._onViewChange = this._onViewChange.bind(this);
@@ -56,9 +55,8 @@ export default class BoardController {
 
   _renderPoints(container, points) {
     points.forEach((point) => {
-      this._showedControllersCount++;
       const newController = new EventController(container, this._destinations, this._onViewChange);
-      newController.render(point, this._showedControllersCount);
+      newController.render(point);
       this._showedPointsControllers.push(newController);
     });
   }
@@ -66,7 +64,6 @@ export default class BoardController {
   _removePoints() {
     this._showedPointsControllers.forEach((controller) => controller.destroy());
     this._showedPointsControllers = [];
-    this._showedControllersCount = this._showedPointsControllers.length;
   }
 
   _onViewChange() {

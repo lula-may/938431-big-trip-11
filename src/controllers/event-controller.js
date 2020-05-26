@@ -23,11 +23,11 @@ export default class EventController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(event, index) {
+  render(event) {
     this._event = event;
-    this._offers = offersByType[event.type];
+    this._offers = offersByType;
     this._eventComponent = new EventComponent(event);
-    this._editEventComponent = new EditEventComponent(event, index, this._offers, this._destinations);
+    this._editEventComponent = new EditEventComponent(event, this._offers, this._destinations);
 
     this._eventComponent.setRollupButtonClickHandler(() => {
       this._replacePointToEdit();

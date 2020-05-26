@@ -60,7 +60,8 @@ const getEditFormTemplate = (options = {}) => {
   const eventTitle = getEventDescription(type);
   const destinations = availableDestinations.map((item) => item.name);
   const destinationsDatasetMarkup = getDatasetMarkup(destinations);
-  const offersMarkup = getOffersMarkup(offers, availableOffers, id);
+  const areOffers = !!(offers.length);
+  const offersMarkup = areOffers ? getOffersMarkup(offers, availableOffers, id) : ``;
   return (
     `<form class="event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -132,14 +133,17 @@ const getEditFormTemplate = (options = {}) => {
         </button>
       </header>
 
-      <section class="event__details">
-        <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-          <div class="event__available-offers">
-          ${offersMarkup}
-          </div>
-        </section>
-      </section>
+      ${areOffers
+      ? `<section class="event__details">
+          <section class="event__section  event__section--offers">
+            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <div class="event__available-offers">
+            ${offersMarkup}
+            </div>
+          </section>
+        </section>`
+      : ``
+    }
     </form>`
   );
 };

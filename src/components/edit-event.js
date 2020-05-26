@@ -86,7 +86,8 @@ const getEditFormTemplate = (options = {}) => {
           <label class="event__label  event__type-output" for="event-destination-${id}">
             ${eventTitle}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination}" list="destination-list-${id}">
+          <input class="event__input  event__input--destination" id="event-destination-${id}"
+            type="text" name="event-destination" value="${destination}" list="destination-list-${id}" required>
           <datalist id="destination-list-${id}">
             ${destinationsDatasetMarkup}
           </datalist>
@@ -189,7 +190,11 @@ export default class EditEvent extends AbstractSmartComponent {
   }
 
   _subscribeOnEvents() {
-    this.getElement().querySelector(`.event__type-list`)
+    const element = this.getElement();
+    const destinationInputElement = element.querySelector(`.event__input--destination`);
+
+    // Обработчик изменения типа события
+    element.querySelector(`.event__type-list`)
       .addEventListener(`change`, (evt) => {
         if (evt.target.tagName !== `INPUT`) {
           return;
@@ -197,5 +202,25 @@ export default class EditEvent extends AbstractSmartComponent {
         this._type = evt.target.value;
         this.rerender();
       });
+
+
+    destinationInputElement.addEventListener(`input`, (evt) => {
+      this._setDestinationInputValidity();
+      if (!destinationInputElement.checkValidity()) {
+        return;
+      }
+      this._destination = evt.target.value;
+    });
+  }
+
+  _setDestinationInputValidity() {
+    const inputElement = this.getElement().querySelector(`.event__input--destination`);
+
+    const matchesToOption = this._availableDestinations.some((destination) => destination.name === inputElement.value);
+    if (!matchesToOption) {
+      inputElement.setCustomValidity(`Please choose one of the options from the list`);
+    } else {
+      inputElement.setCustomValidity(``);
+    }
   }
 }

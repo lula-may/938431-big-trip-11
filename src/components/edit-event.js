@@ -1,4 +1,4 @@
-import AbstractComponent from "./abstract-component";
+import AbstractSmartComponent from "./abstract-smart-component.js";
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventDescription, formatFullDate} from "../utils/common.js";
 
@@ -6,15 +6,15 @@ const getShortName = (text) => {
   return text.split(` `).pop().toLowerCase();
 };
 
-const getRadioListMarkup = (items, number, checkedItem) => {
+const getRadioListMarkup = (items, id, checkedItem) => {
   return items.map((type) => {
     const typeText = capitalizeFirstLetter(type);
     const isChecked = checkedItem === type;
     return (
       `<div class="event__type-item">
-        <input id="event-type-${type}-${number}" class="event__type-input  visually-hidden" type="radio"
+        <input id="event-type-${type}-${id}" class="event__type-input  visually-hidden" type="radio"
           name="event-type" value="${type}" ${isChecked ? `checked` : ``}>
-        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${number}">${typeText}</label>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${id}">${typeText}</label>
       </div>`
     );
   })
@@ -27,7 +27,7 @@ const getDatasetMarkup = (destinations) => {
     .join(`\n`);
 };
 
-const getOffersMarkup = (offers, availableOffers, number) => {
+const getOffersMarkup = (offers, availableOffers, id) => {
   return availableOffers
     .map((item) => {
       const title = item.title;
@@ -36,9 +36,9 @@ const getOffersMarkup = (offers, availableOffers, number) => {
       const price = item.price;
       return (
         `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${shortTitle}-${number}"
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${shortTitle}-${id}"
             type="checkbox" name="event-offer-${shortTitle}" ${isChecked ? `checked` : ``}>
-          <label class="event__offer-label" for="event-offer-${shortTitle}-${number}">
+          <label class="event__offer-label" for="event-offer-${shortTitle}-${id}">
             <span class="event__offer-title">${title}</span>
             &plus;
             &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -49,25 +49,25 @@ const getOffersMarkup = (offers, availableOffers, number) => {
     .join(`\n`);
 };
 
-const getEditFormTemplate = (number, event, availableOffers, availableDestinations) => {
-  const {type, destination, dateFrom, dateTo, price, isFavorite, offers} = event;
+const getEditFormTemplate = (options = {}) => {
+  const {id, type, destination, dateFrom, dateTo, price, isFavorite, offers, availableOffers, availableDestinations} = options;
   const fullDateFrom = formatFullDate(dateFrom);
   const fullDateTo = formatFullDate(dateTo);
-  const transportListMarkup = getRadioListMarkup(MEANS_OF_TRANSPORT, number, type);
-  const activityListMarkup = getRadioListMarkup(PLACES, number, type);
+  const transportListMarkup = getRadioListMarkup(MEANS_OF_TRANSPORT, id, type);
+  const activityListMarkup = getRadioListMarkup(PLACES, id, type);
   const eventTitle = getEventDescription(type);
   const destinations = availableDestinations.map((item) => item.name);
   const destinationsDatasetMarkup = getDatasetMarkup(destinations);
-  const offersMarkup = getOffersMarkup(offers, availableOffers, number);
+  const offersMarkup = getOffersMarkup(offers, availableOffers, id);
   return (
     `<form class="event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-${number}">
+          <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${number}" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -83,41 +83,41 @@ const getEditFormTemplate = (number, event, availableOffers, availableDestinatio
         </div>
 
         <div class="event__field-group  event__field-group--destination">
-          <label class="event__label  event__type-output" for="event-destination-${number}">
+          <label class="event__label  event__type-output" for="event-destination-${id}">
             ${eventTitle}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${number}" type="text" name="event-destination" value="${destination}" list="destination-list-${number}">
-          <datalist id="destination-list-${number}">
+          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination}" list="destination-list-${id}">
+          <datalist id="destination-list-${id}">
             ${destinationsDatasetMarkup}
           </datalist>
         </div>
 
         <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-${number}">
+          <label class="visually-hidden" for="event-start-time-${id}">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time-${number}" type="text" name="event-start-time" value="${fullDateFrom}">
+          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${fullDateFrom}">
           &mdash;
-          <label class="visually-hidden" for="event-end-time-${number}">
+          <label class="visually-hidden" for="event-end-time-${id}">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time-${number}" type="text" name="event-end-time" value="${fullDateTo}">
+          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${fullDateTo}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
-          <label class="event__label" for="event-price-${number}">
+          <label class="event__label" for="event-price-${id}">
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-${number}" type="text" name="event-price" value="${price}">
+          <input class="event__input  event__input--price" id="event-price-${id}" type="id" name="event-price" value="${price}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
 
-        <input id="event-favorite-${number}" class="event__favorite-checkbox  visually-hidden" type="checkbox"
+        <input id="event-favorite-${id}" class="event__favorite-checkbox  visually-hidden" type="checkbox"
           name="event-favorite" ${isFavorite ? `checked` : ``}>
-        <label class="event__favorite-btn" for="event-favorite-${number}">
+        <label class="event__favorite-btn" for="event-favorite-${id}">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -141,21 +141,61 @@ const getEditFormTemplate = (number, event, availableOffers, availableDestinatio
   );
 };
 
-export default class EditEvent extends AbstractComponent {
-  constructor(event, index, availableOffers, availableDestinations) {
+export default class EditEvent extends AbstractSmartComponent {
+  constructor(event, availableOffers, availableDestinations) {
     super();
     this._event = event;
-    this._index = index;
-    this._offers = availableOffers;
-    this._destinations = availableDestinations;
+    this._id = event.id;
+    this._type = event.type;
+    this._dateFrom = event.dateFrom;
+    this._dateTo = event.dateTo;
+    this._destination = event.destination;
+    this._price = event.price;
+    this._offers = event.offers;
+    this._isFavorite = event.isFavorite;
+
+    this._availableOffers = availableOffers;
+    this._availableDestinations = availableDestinations;
+
+    this._rollupHandler = null;
+
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    return getEditFormTemplate(this._index, this._event, this._offers, this._destinations);
+    return getEditFormTemplate({
+      id: this._id,
+      type: this._type,
+      destination: this._destination,
+      dateFrom: this._dateFrom,
+      dateTo: this._dateTo,
+      price: this._price,
+      isFavorite: this._isFavorite,
+      offers: this._offers,
+      availableOffers: this._availableOffers[this._type],
+      availableDestinations: this._availableDestinations
+    });
+  }
+
+  recoveryListeners() {
+    this.setRollupButtonClickHandler(this._rollupHandler);
+    this._subscribeOnEvents();
   }
 
   setRollupButtonClickHandler(handler) {
     const rollupButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
+    this._rollupHandler = handler;
     rollupButtonElement.addEventListener(`click`, handler);
+  }
+
+  _subscribeOnEvents() {
+    this.getElement().querySelector(`.event__type-list`)
+      .addEventListener(`change`, (evt) => {
+        if (evt.target.tagName !== `INPUT`) {
+          return;
+        }
+        this._type = evt.target.value;
+        this.rerender();
+      });
   }
 }

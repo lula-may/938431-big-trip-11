@@ -10,7 +10,7 @@ const Mode = {
 };
 
 export default class EventController {
-  constructor(container, destinations, onViewChange) {
+  constructor(container, destinations, onViewChange, onDataChange) {
     this._container = container;
     this._destinations = destinations;
     this._eventComponent = null;
@@ -19,7 +19,7 @@ export default class EventController {
     this._event = null;
     this._offers = [];
     this._onViewChange = onViewChange;
-
+    this._onDataChange = onDataChange;
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
@@ -37,6 +37,10 @@ export default class EventController {
       this._replaceEditToPoint();
     });
 
+    this._editEventComponent.setFavoriteButtonClickHandler(() => {
+      const newData = Object.assign({}, event, {isFavorite: !event.isFavorite});
+      this._onDataChange(event, newData);
+    });
     render(this._container, this._eventComponent);
   }
 
@@ -73,5 +77,4 @@ export default class EventController {
       this._replaceEditToPoint();
     }
   }
-
 }

@@ -18,6 +18,7 @@ export default class BoardController {
     this._activeSort = SortType.EVENT;
 
     this._onViewChange = this._onViewChange.bind(this);
+    this._onDataChange = this._onDataChange.bind(this);
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
   }
@@ -55,7 +56,7 @@ export default class BoardController {
 
   _renderPoints(container, points) {
     points.forEach((point) => {
-      const newController = new EventController(container, this._destinations, this._onViewChange);
+      const newController = new EventController(container, this._destinations, this._onViewChange, this._onDataChange);
       newController.render(point);
       this._showedPointsControllers.push(newController);
     });
@@ -76,5 +77,10 @@ export default class BoardController {
     this._dayComponents.forEach((component) => remove(component));
     this._dayComponents = [];
     this.render();
+  }
+
+  _onDataChange(oldData, newData) {
+    // Реализован только случай редактирования
+    this._pointsModel.updatePoint(oldData.id, newData);
   }
 }

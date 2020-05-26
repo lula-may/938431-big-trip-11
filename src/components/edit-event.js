@@ -163,10 +163,12 @@ export default class EditEvent extends AbstractSmartComponent {
 
     this._availableOffers = availableOffers;
     this._availableDestinations = availableDestinations;
-    this._flatpickers = [];
 
+    this._dateFromFlatpicker = null;
+    this._dateToFlatpicker = null;
+
+    this._favoriteButtonClickHandler = null;
     this._rollupHandler = null;
-
     this._subscribeOnEvents();
     this._applyFlatpickers();
   }
@@ -188,6 +190,7 @@ export default class EditEvent extends AbstractSmartComponent {
 
   recoveryListeners() {
     this.setRollupButtonClickHandler(this._rollupHandler);
+    this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
     this._subscribeOnEvents();
   }
 
@@ -197,7 +200,19 @@ export default class EditEvent extends AbstractSmartComponent {
     rollupButtonElement.addEventListener(`click`, handler);
   }
 
+  setFavoriteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, handler);
+    this._favoriteButtonClickHandler = handler;
+  }
+
   _applyFlatpickers() {
+    if (this._dateToFlatpicker) {
+      this._dateToFlatpicker.destroy();
+    }
+    if (this._dateFromFlatpicker) {
+      this._dateFromFlatpicker.destroy();
+    }
     const element = this.getElement();
     const dateFromInputElement = element.querySelector(`#event-start-time-${this._id}`);
     const dateToElement = element.querySelector(`#event-end-time-${this._id}`);

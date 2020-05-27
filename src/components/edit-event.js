@@ -113,7 +113,7 @@ const getEditFormTemplate = (options = {}) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-${id}" type="id" name="event-price" value="${price}">
+          <input class="event__input  event__input--price" id="event-price-${id}" type="number" name="event-price" value="${price}" required>
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -220,6 +220,19 @@ export default class EditEvent extends AbstractSmartComponent {
     this.getElement().querySelector(`.event__reset-btn`)
       .addEventListener(`click`, handler);
     this._deleteClickHandler = handler;
+  }
+
+  reset() {
+    const event = this._event;
+    this._type = event.type;
+    this._destination = event.destination;
+    this._price = event.price;
+    this._dateFrom = event.dateFrom;
+    this._dateTo = event.dateTo;
+    this._offers = event.offers;
+    this._isFavorite = event.isFavorite;
+
+    this.rerender();
   }
 
   _applyFlatpickers() {

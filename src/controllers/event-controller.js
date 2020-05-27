@@ -108,6 +108,7 @@ export default class EventController {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey) {
       this._replaceEditToPoint();
+      this._editEventComponent.reset();
     }
   }
 }

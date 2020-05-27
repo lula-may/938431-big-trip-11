@@ -1,5 +1,5 @@
 import BoardController from "./controllers/board-controller.js";
-import FilterComponent from "./components/filter.js";
+import FilterController from "./controllers/filter.js";
 import HeaderInfoComponent from "./components/header-info.js";
 import MainNavComponent from "./components/main-nav.js";
 import PointsModel from "./models/points.js";
@@ -14,14 +14,15 @@ const mainContainerElement = document.querySelector(`.trip-events`);
 
 const headerInfoComponent = new HeaderInfoComponent();
 const mainNavComponent = new MainNavComponent();
-const filterComponent = new FilterComponent();
 const pointsModel = new PointsModel();
 const points = generatePoints(POINTS_AMOUNT);
 pointsModel.setPoints(points);
 
 render(headerContainerElement, headerInfoComponent, RenderPosition.AFTERBEGIN);
 render(headerControlsElement, mainNavComponent);
-render(headerControlsElement, filterComponent);
+
+const filterController = new FilterController(headerControlsElement, pointsModel);
 const boardController = new BoardController(mainContainerElement, pointsModel, allDestinations);
+filterController.render();
 boardController.render();
 

@@ -3,7 +3,7 @@ import {EVENT_TYPES} from "../const.js";
 const DESTINATIONS = [`Chamonix`, `Geneva`, `Amsterdam`];
 const DESCRIPTION_TEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 const OPTIONS = [`Choose radio station`, `Add meal`, `Choose seats`, `Add luggage`, `Travel by train`, `Switch to comfort class`, `Coffee to bed`];
-const BEGINING_DELAY = 7;
+const BEGINING_DELAY = -2;
 const TRIP_DURATION_IN_MINUTES = 3 * 24 * 60;
 const MIN_DURATION_IN_MINUTES = 30;
 const MAX_DURATION_IN_MINUTES = 150;

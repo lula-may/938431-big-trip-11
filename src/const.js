@@ -8,4 +8,10 @@ const SortType = {
   PRICE: `price`
 };
 
-export {MEANS_OF_TRANSPORT, PLACES, EVENT_TYPES, SortType};
+const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
+
+export {MEANS_OF_TRANSPORT, PLACES, EVENT_TYPES, SortType, FilterType};

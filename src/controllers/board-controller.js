@@ -20,18 +20,38 @@ export default class BoardController {
     this._onViewChange = this._onViewChange.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
+    this._onFilterTypeChange = this._onFilterTypeChange.bind(this);
+
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
+    this._pointsModel.setFilterChangeHandler(this._onFilterTypeChange);
   }
 
   render() {
-    const points = this._pointsModel.getPoints();
     render(this._container, this._sortComponent);
     render(this._container, this._listComponent);
+    this._renderPointsList();
+  }
 
+  resetSort() {
+    this._activeSort = SortType.EVENT;
+    this._sortComponent.setActiveSort(SortType.EVENT);
+    this._updatePoints();
+  }
+
+  _renderPoints(container, points) {
+    points.forEach((point) => {
+      const newController = new EventController(container, this._destinations, this._onViewChange, this._onDataChange);
+      newController.render(point);
+      this._showedPointsControllers.push(newController);
+    });
+  }
+
+  _renderPointsList() {
     const listContainerElement = this._listComponent.getElement();
+
     switch (this._activeSort) {
       case SortType.EVENT :
-        const tripDates = getUniqueDates(points);
+        const tripDates = getUniqueDates(this._pointsModel.getPoints());
         let daysCount = 1;
         tripDates.forEach((date) => {
           const dayComponent = new DayComponent(this._activeSort, daysCount, date);
@@ -54,17 +74,22 @@ export default class BoardController {
     }
   }
 
-  _renderPoints(container, points) {
-    points.forEach((point) => {
-      const newController = new EventController(container, this._destinations, this._onViewChange, this._onDataChange);
-      newController.render(point);
-      this._showedPointsControllers.push(newController);
-    });
-  }
-
   _removePoints() {
     this._showedPointsControllers.forEach((controller) => controller.destroy());
     this._showedPointsControllers = [];
+    this._currentPoints = [];
+  }
+
+  _removePointsList() {
+    this._removePoints();
+    this._dayComponents.forEach((day) => remove(day));
+    this._dayComponents = [];
+  }
+
+  _updatePoints() {
+    this._removePointsList();
+    const newPoints = this._pointsModel.getPoints();
+    this._renderPointsList(newPoints);
   }
 
   _onViewChange() {
@@ -73,14 +98,17 @@ export default class BoardController {
 
   _onSortTypeChange(type) {
     this._activeSort = type;
-    this._removePoints();
-    this._dayComponents.forEach((component) => remove(component));
-    this._dayComponents = [];
-    this.render();
+    this._updatePoints();
   }
 
   _onDataChange(oldData, newData) {
     // Реализован только случай редактирования
+    // Добавить вызов метода render у нужного контроллера
+    // Дополнить метод render проверкой на наличие старых компонентов
     this._pointsModel.updatePoint(oldData.id, newData);
+  }
+
+  _onFilterTypeChange() {
+    this.resetSort();
   }
 }

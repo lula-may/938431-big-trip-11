@@ -1,3 +1,6 @@
+import {FilterType} from "../const.js";
+import {getPointsByFilter} from "../controllers/filter.js";
+
 const sortPointsByDate = (points) => {
   const sortedPoints = points.slice();
   return sortedPoints.sort((left, right) => {
@@ -8,6 +11,9 @@ const sortPointsByDate = (points) => {
 export default class Points {
   constructor() {
     this._points = [];
+    this._activeFilter = FilterType.EVERYTHING;
+
+    this._onFilterChange = null;
   }
 
   setPoints(points) {
@@ -15,11 +21,11 @@ export default class Points {
   }
 
   getPoints() {
-    return this._points;
+    return getPointsByFilter(this._points, this._activeFilter);
   }
 
   getPointsByDate(date) {
-    const points = this._points.filter((point) => point.dateFrom.getDate() === date.getDate());
+    const points = this.getPoints().filter((point) => point.dateFrom.getDate() === date.getDate());
     return sortPointsByDate(points);
   }
 
@@ -31,5 +37,18 @@ export default class Points {
 
     this._points = [].concat(this._points.slice(0, index), newPoint, this._points.slice(index + 1));
     return true;
+  }
+
+  setFilter(filter) {
+    this._activeFilter = filter;
+    this._callHandler(this._onFilterChange);
+  }
+
+  setFilterChangeHandler(handler) {
+    this._onFilterChange = handler;
+  }
+
+  _callHandler(handler) {
+    handler();
   }
 }

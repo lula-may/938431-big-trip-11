@@ -1,12 +1,8 @@
 import AbstractComponent from "./abstract-component.js";
 import {capitalizeFirstLetter} from "../utils/common.js";
+import {FilterType} from "../const.js";
 
-const FilterType = {
-  EVERYTHING: `everything`,
-  FUTURE: `future`,
-  PAST: `past`
-};
-
+const FILTER_PREFIX = `filter-`;
 const getFiltersMarkup = (activeFilter) => {
   const filters = Object.values(FilterType);
   return filters
@@ -43,5 +39,22 @@ export default class Filter extends AbstractComponent {
 
   getTemplate() {
     return getFilterTemplate(this._activeFilter);
+  }
+
+  setFilterChangeHandler(handler) {
+    this.getElement().querySelector(`.trip-filters`)
+      .addEventListener(`change`, (evt) => {
+        const newFilter = evt.target.value;
+        this._activeFilter = newFilter;
+        handler(newFilter);
+      });
+  }
+
+  resetActiveFilter() {
+    const oldActiveElement = this.getElement().querySelector(`.trip-filters__filter-input:checked`);
+    oldActiveElement.checked = false;
+    this._activeFilter = FilterType.EVERYTHING;
+    const newActiveElement = this.getElement().querySelector(`#${FILTER_PREFIX}${FilterType.EVERYTHING}`);
+    newActiveElement.checked = true;
   }
 }

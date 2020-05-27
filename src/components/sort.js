@@ -59,4 +59,14 @@ export default class Sort extends AbstractComponent {
       handler(sortType);
     });
   }
+
+  setActiveSort(type) {
+    if (this._activeSort === type) {
+      return;
+    }
+    this._activeSort = type;
+    const activeSortElement = this.getElement().querySelector(`.trip-sort__input:checked`);
+    activeSortElement.checked = false;
+    this.getElement().querySelector(`#${SORT_PREFIX}${this._activeSort}`).checked = true;
+  }
 }

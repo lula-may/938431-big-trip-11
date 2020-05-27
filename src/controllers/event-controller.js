@@ -23,9 +23,14 @@ export default class EventController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(event) {
+  render(event, mode = Mode.DEFAULT) {
+    this._mode = mode;
     this._event = event;
     this._offers = offersByType;
+
+    const oldEventComponent = this._eventComponent;
+    const oldEditEventComponent = this._editEventComponent;
+
     this._eventComponent = new EventComponent(event);
     this._editEventComponent = new EditEventComponent(event, this._offers, this._destinations);
 
@@ -41,7 +46,35 @@ export default class EventController {
       const newData = Object.assign({}, event, {isFavorite: !event.isFavorite});
       this._onDataChange(event, newData);
     });
-    render(this._container, this._eventComponent);
+
+    this._editEventComponent.setSubmitHandler((evt) => {
+      evt.preventDefault();
+      this._replaceEditToPoint();
+      // this._onDataChange(event, newData);
+    });
+
+    this._editEventComponent.setDeleteClickHandler((evt) => {
+      evt.preventDefault();
+      this._replaceEditToPoint();
+    });
+
+    switch (this._mode) {
+      case Mode.DEFAULT:
+        if (oldEventComponent && oldEditEventComponent) {
+          replace(this._eventComponent, oldEditEventComponent);
+          replace(this._editEventComponent, oldEditEventComponent);
+          this._replaceEditToPoint();
+        } else {
+          render(this._container, this._eventComponent);
+        }
+        break;
+    }
+  }
+
+  rerender(id, newPoint) {
+    if (this._event.id === id) {
+      this.render(newPoint);
+    }
   }
 
   setDefaultView() {

@@ -169,6 +169,9 @@ export default class EditEvent extends AbstractSmartComponent {
 
     this._favoriteButtonClickHandler = null;
     this._rollupHandler = null;
+    this._submitHandler = null;
+    this._deleteClickHandler = null;
+
     this._subscribeOnEvents();
     this._applyFlatpickers();
   }
@@ -191,6 +194,8 @@ export default class EditEvent extends AbstractSmartComponent {
   recoveryListeners() {
     this.setRollupButtonClickHandler(this._rollupHandler);
     this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
+    this.setSubmitHandler(this._submitHandler);
+    this.setDeleteClickHandler(this._deleteClickHandler);
     this._subscribeOnEvents();
   }
 
@@ -204,6 +209,17 @@ export default class EditEvent extends AbstractSmartComponent {
     this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, handler);
     this._favoriteButtonClickHandler = handler;
+  }
+
+  setSubmitHandler(handler) {
+    this.getElement().addEventListener(`submit`, handler);
+    this._submitHandler = handler;
+  }
+
+  setDeleteClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, handler);
+    this._deleteClickHandler = handler;
   }
 
   _applyFlatpickers() {

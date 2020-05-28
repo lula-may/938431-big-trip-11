@@ -191,6 +191,11 @@ export default class EditEvent extends AbstractSmartComponent {
     });
   }
 
+  rerender() {
+    super.rerender();
+    this._applyFlatpickers();
+  }
+
   recoveryListeners() {
     this.setRollupButtonClickHandler(this._rollupHandler);
     this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
@@ -230,8 +235,6 @@ export default class EditEvent extends AbstractSmartComponent {
     this._dateFrom = event.dateFrom;
     this._dateTo = event.dateTo;
     this._offers = event.offers;
-    this._isFavorite = event.isFavorite;
-
     this.rerender();
   }
 

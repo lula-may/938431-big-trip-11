@@ -102,10 +102,10 @@ export default class BoardController {
   }
 
   _onDataChange(oldData, newData) {
-    // Реализован только случай редактирования
-    // Добавить вызов метода render у нужного контроллера
-    // Дополнить метод render проверкой на наличие старых компонентов
-    this._pointsModel.updatePoint(oldData.id, newData);
+    const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
+    if (isSuccess) {
+      this._showedPointsControllers.forEach((controller) => controller.rerender(oldData.id, newData));
+    }
   }
 
   _onFilterTypeChange() {

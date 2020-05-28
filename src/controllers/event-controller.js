@@ -17,15 +17,16 @@ export default class EventController {
     this._editEventComponent = null;
     this._mode = Mode.DEFAULT;
     this._event = null;
+    this.id = ``;
     this._offers = [];
     this._onViewChange = onViewChange;
     this._onDataChange = onDataChange;
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(event, mode = Mode.DEFAULT) {
-    this._mode = mode;
+  render(event) {
     this._event = event;
+    this.id = this._event.id;
     this._offers = offersByType;
 
     const oldEventComponent = this._eventComponent;
@@ -61,20 +62,28 @@ export default class EventController {
     switch (this._mode) {
       case Mode.DEFAULT:
         if (oldEventComponent && oldEditEventComponent) {
-          replace(this._eventComponent, oldEditEventComponent);
+          replace(this._eventComponent, oldEventComponent);
           replace(this._editEventComponent, oldEditEventComponent);
           this._replaceEditToPoint();
         } else {
           render(this._container, this._eventComponent);
         }
         break;
+      case Mode.EDIT:
+        if (oldEventComponent && oldEditEventComponent) {
+          replace(this._eventComponent, oldEventComponent);
+          replace(this._editEventComponent, oldEditEventComponent);
+          this._replacePointToEdit();
+          break;
+        }
     }
   }
 
   rerender(id, newPoint) {
-    if (this._event.id === id) {
-      this.render(newPoint);
+    if (this._event.id !== id) {
+      return;
     }
+    this.render(newPoint);
   }
 
   setDefaultView() {
@@ -106,9 +115,9 @@ export default class EventController {
 
   _onEscKeyDown(evt) {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
-    if (isEscKey) {
-      this._replaceEditToPoint();
+    if (isEscKey && evt.target.tagName !== `INPUT`) {
       this._editEventComponent.reset();
+      this._replaceEditToPoint();
     }
   }
 }

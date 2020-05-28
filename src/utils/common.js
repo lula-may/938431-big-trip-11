@@ -6,12 +6,21 @@ const capitalizeFirstLetter = (word) => {
   return word.replace(firstLetter, firstLetter.toUpperCase());
 };
 
+const isPositive = (value) => value > 0;
+const stringifyNumber = (number) => {
+  return number < 10 ? `0${number}` : `${number}`;
+};
+
 const formatDurationTime = (duration) => {
   const runTime = moment.duration(duration, `minutes`);
-  const hours = runTime.hours();
-  const isHour = hours > 0;
-  const minutes = runTime.minutes();
-  return `${isHour ? `${hours}H ` : ``}${minutes}M`;
+  const days = runTime.days();
+  const hours = stringifyNumber(runTime.hours());
+  const minutes = stringifyNumber(runTime.minutes());
+
+  if (isPositive(days)) {
+    return `${stringifyNumber(days)}D ${hours}H ${minutes}M`;
+  }
+  return `${isPositive(hours) ? `${hours}H ` : ``}${minutes}M`;
 };
 
 const formatFullDate = (date) => {

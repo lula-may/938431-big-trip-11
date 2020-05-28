@@ -1,4 +1,4 @@
-import EditEventComponent from "../components/edit-event.js";
+import EditEventComponent, {getShortName, parseDate} from "../components/edit-event.js";
 import EventComponent from "../components/event.js";
 import {render, replace, remove} from "../utils/render.js";
 import {offersByType} from "../mock/point.js";
@@ -7,6 +7,30 @@ const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
   ADDING: `adding`
+};
+
+const parseFormData = (formData) => {
+  const type = formData.get(`event-type`);
+  const destination = formData.get(`event-destination`);
+  const dateFrom = parseDate(formData.get(`event-start-time`));
+  const dateTo = parseDate(formData.get(`event-end-time`));
+  const price = formData.get(`event-price`);
+  const isFavorite = !!(formData.get(`event-favorite`));
+  const offersNames = formData.getAll(`event-offer`);
+  const availabledOffers = offersByType[type];
+  const offers = offersNames.map((name) => {
+    return availabledOffers.find((offer) => getShortName(offer.title) === name);
+  });
+
+  return {
+    type,
+    dateFrom,
+    dateTo,
+    destination,
+    price,
+    offers,
+    isFavorite
+  };
 };
 
 export default class EventController {
@@ -26,7 +50,7 @@ export default class EventController {
 
   render(event) {
     this._event = event;
-    this.id = this._event.id;
+    this.id = this._event.id || ``;
     this._offers = offersByType;
 
     const oldEventComponent = this._eventComponent;
@@ -51,7 +75,10 @@ export default class EventController {
     this._editEventComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
       this._replaceEditToPoint();
-      // this._onDataChange(event, newData);
+      const formData = this._editEventComponent.getData();
+      const newData = parseFormData(formData);
+      newData.id = this.id || ``;
+      this._onDataChange(event, newData);
     });
 
     this._editEventComponent.setDeleteClickHandler((evt) => {

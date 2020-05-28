@@ -4,9 +4,11 @@ import {capitalizeFirstLetter, getEventDescription, formatFullDate} from "../uti
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 
-const getShortName = (text) => {
+export const getShortName = (text) => {
   return text.split(` `).pop().toLowerCase();
 };
+
+export const parseDate = (date) => flatpickr.parseDate(date, `d/m/y H:i`);
 
 const getRadioListMarkup = (items, id, checkedItem) => {
   return items.map((type) => {
@@ -39,7 +41,7 @@ const getOffersMarkup = (offers, availableOffers, id) => {
       return (
         `<div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden" id="event-offer-${shortTitle}-${id}"
-            type="checkbox" name="event-offer-${shortTitle}" ${isChecked ? `checked` : ``}>
+            type="checkbox" name="event-offer" value="${shortTitle}" ${isChecked ? `checked` : ``}>
           <label class="event__offer-label" for="event-offer-${shortTitle}-${id}">
             <span class="event__offer-title">${title}</span>
             &plus;
@@ -236,6 +238,12 @@ export default class EditEvent extends AbstractSmartComponent {
     this._dateTo = event.dateTo;
     this._offers = event.offers;
     this.rerender();
+  }
+
+  getData() {
+    const form = this.getElement();
+    const data = new FormData(form);
+    return data;
   }
 
   _applyFlatpickers() {

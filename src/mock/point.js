@@ -41,7 +41,7 @@ const getPictures = () => {
   if (amount > 0) {
     for (let i = 1; i <= amount; i++) {
       const picture = {};
-      picture.src = `./public/img/photos/${i}.jpg`;
+      picture.src = `./img/photos/${i}.jpg`;
       picture.description = `Picture description`;
       pictures.push(picture);
     }

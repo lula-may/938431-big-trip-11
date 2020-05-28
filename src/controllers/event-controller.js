@@ -138,6 +138,7 @@ export default class EventController {
     }
     this._mode = Mode.DEFAULT;
     document.removeEventListener(`keydown`, this._onEscKeyDown);
+    this._editEventComponent.resetDescriptionShowing();
   }
 
   _onEscKeyDown(evt) {

@@ -53,8 +53,47 @@ const getOffersMarkup = (offers, availableOffers, id) => {
     .join(`\n`);
 };
 
+const getPicturesMarkup = (pictures) => {
+  return pictures.map((item) => {
+    const pictureSrc = item.src;
+    const altText = item.description;
+    return `<img class="event__photo" src="${pictureSrc}" alt="${altText}">`;
+  })
+  .join(`\n`);
+};
+
+const getDestinationDescriptionMarkup = (destination) => {
+  const {description, pictures} = destination;
+  const picturesMarkup = getPicturesMarkup(pictures);
+
+  return (
+    `<section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${description}</p>
+
+      <div class="event__photos-container">
+        <div class="event__photos-tape">
+          ${picturesMarkup}
+        </div>
+      </div>
+    </section>`
+  );
+};
+
 const getEditFormTemplate = (options = {}) => {
-  const {id, type, destination, dateFrom, dateTo, price, isFavorite, offers, availableOffers, availableDestinations} = options;
+  const {
+    id,
+    type,
+    destination,
+    dateFrom,
+    dateTo,
+    price,
+    isFavorite,
+    offers,
+    availableOffers,
+    availableDestinations,
+    isDescriptionShowing
+  } = options;
   const fullDateFrom = formatFullDate(dateFrom);
   const fullDateTo = formatFullDate(dateTo);
   const transportListMarkup = getRadioListMarkup(MEANS_OF_TRANSPORT, id, type);
@@ -64,6 +103,9 @@ const getEditFormTemplate = (options = {}) => {
   const destinationsDatasetMarkup = getDatasetMarkup(destinations);
   const areOffers = !!(offers.length);
   const offersMarkup = areOffers ? getOffersMarkup(offers, availableOffers, id) : ``;
+  const description = (isDescriptionShowing) ? availableDestinations.find((item) => item.name === destination) : null;
+  const descriptionMarkup = (isDescriptionShowing && description) ? getDestinationDescriptionMarkup(description) : ``;
+
   return (
     `<form class="event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -135,17 +177,18 @@ const getEditFormTemplate = (options = {}) => {
         </button>
       </header>
 
-      ${areOffers
-      ? `<section class="event__details">
-          <section class="event__section  event__section--offers">
+      <section class="event__details">
+        ${areOffers
+      ? `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
             ${offersMarkup}
             </div>
-          </section>
-        </section>`
+          </section>`
       : ``
     }
+        ${descriptionMarkup}
+      </section>
     </form>`
   );
 };
@@ -162,6 +205,7 @@ export default class EditEvent extends AbstractSmartComponent {
     this._price = event.price;
     this._offers = event.offers;
     this._isFavorite = event.isFavorite;
+    this._isDestinationDescriptionShowing = false;
 
     this._availableOffers = availableOffers;
     this._availableDestinations = availableDestinations;
@@ -189,7 +233,8 @@ export default class EditEvent extends AbstractSmartComponent {
       isFavorite: this._isFavorite,
       offers: this._offers,
       availableOffers: this._availableOffers[this._type],
-      availableDestinations: this._availableDestinations
+      availableDestinations: this._availableDestinations,
+      isDescriptionShowing: this._isDestinationDescriptionShowing
     });
   }
 
@@ -237,7 +282,12 @@ export default class EditEvent extends AbstractSmartComponent {
     this._dateFrom = event.dateFrom;
     this._dateTo = event.dateTo;
     this._offers = event.offers;
+    this.resetDescriptionShowing();
     this.rerender();
+  }
+
+  resetDescriptionShowing() {
+    this._isDestinationDescriptionShowing = false;
   }
 
   getData() {
@@ -285,8 +335,9 @@ export default class EditEvent extends AbstractSmartComponent {
         this._dateTo = days[0];
       }
     });
-
   }
+
+  _showDestinationDescription() {}
 
   _subscribeOnEvents() {
     const element = this.getElement();
@@ -302,13 +353,19 @@ export default class EditEvent extends AbstractSmartComponent {
         this.rerender();
       });
 
-
+    // Обработчик изменения места назначения
     destinationInputElement.addEventListener(`input`, (evt) => {
       this._setDestinationInputValidity();
       if (!destinationInputElement.checkValidity()) {
         return;
       }
       this._destination = evt.target.value;
+    });
+
+    destinationInputElement.addEventListener(`change`, (evt) => {
+      this._destination = capitalizeFirstLetter(evt.target.value);
+      this._isDestinationDescriptionShowing = true;
+      this.rerender();
     });
   }
 

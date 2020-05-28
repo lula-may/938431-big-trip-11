@@ -104,7 +104,7 @@ export default class BoardController {
   _onDataChange(oldData, newData) {
     const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
     if (isSuccess) {
-      this._showedPointsControllers.forEach((controller) => controller.rerender(oldData.id, newData));
+      this._updatePoints();
     }
   }
 

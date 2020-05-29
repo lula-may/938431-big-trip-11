@@ -84,6 +84,7 @@ export default class EventController {
     this._editEventComponent.setDeleteClickHandler((evt) => {
       evt.preventDefault();
       this._replaceEditToPoint();
+      this._onDataChange(event, null);
     });
 
     switch (this._mode) {

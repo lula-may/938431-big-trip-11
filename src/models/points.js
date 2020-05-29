@@ -35,7 +35,16 @@ export default class Points {
       return false;
     }
 
-    this._points = [].concat(this._points.slice(0, index), newPoint, this._points.slice(index + 1));
+    this._points = [...this._points.slice(0, index), newPoint, ...this._points.slice(index + 1)];
+    return true;
+  }
+
+  deletePoint(id) {
+    const index = this._points.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return false;
+    }
+    this._points = [...this._points.slice(0, index), ...this._points.slice(index + 1)];
     return true;
   }
 

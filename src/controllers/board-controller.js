@@ -102,6 +102,12 @@ export default class BoardController {
   }
 
   _onDataChange(oldData, newData) {
+    if (newData === null) {
+      const isSuccess = this._pointsModel.deletePoint(oldData.id);
+      if (isSuccess) {
+        this._updatePoints();
+      }
+    }
     const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
     if (isSuccess) {
       this._updatePoints();

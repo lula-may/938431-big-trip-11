@@ -14,11 +14,11 @@ const headerControlsElement = headerContainerElement.querySelector(`.trip-main__
 const mainContainerElement = document.querySelector(`.trip-events`);
 const addNewButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
-const headerInfoComponent = new HeaderInfoComponent();
 const mainNavComponent = new MainNavComponent();
 const pointsModel = new PointsModel();
 const points = generatePoints(POINTS_AMOUNT);
 pointsModel.setPoints(points);
+const headerInfoComponent = new HeaderInfoComponent(pointsModel);
 
 render(headerContainerElement, headerInfoComponent, RenderPosition.AFTERBEGIN);
 render(headerControlsElement, mainNavComponent);

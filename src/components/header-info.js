@@ -1,7 +1,20 @@
 import AbstractComponent from "./abstract-component.js";
 
 export default class HeaderInfo extends AbstractComponent {
+  constructor(pointsModel) {
+    super();
+    this._pointsModel = pointsModel;
+  }
   getTemplate() {
+    const points = this._pointsModel.getPoints();
+    const totalCost = points.length
+      ? points.map((item) => item.price)
+        .reduce((acc, value) => {
+          acc += value;
+          return acc;
+        }, 0)
+      : 0;
+
     return (
       `<section class="trip-main__trip-info  trip-info">
         <div class="trip-info__main">
@@ -11,7 +24,7 @@ export default class HeaderInfo extends AbstractComponent {
         </div>
 
         <p class="trip-info__cost">
-          Total: &euro;&nbsp;<span class="trip-info__cost-value">1230</span>
+          Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalCost}</span>
         </p>
       </section>`
     );

@@ -3,6 +3,7 @@ import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventDescription, formatFullDate} from "../utils/common.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import {Mode} from "../controllers/event-controller.js";
 
 export const getShortName = (text) => {
   return text.split(` `).pop().toLowerCase();
@@ -29,6 +30,25 @@ const getDatasetMarkup = (destinations) => {
   return destinations
     .map((item) => `<option value="${item}"></option>`)
     .join(`\n`);
+};
+
+const getButtonsMarkup = (isCreatingPoint, id, isFavorite) => {
+  return isCreatingPoint
+    ? `<button class="event__reset-btn" type="reset">Cancel</button>`
+    : `<button class="event__reset-btn" type="reset">Delete</button>
+
+      <input id="event-favorite-${id}" class="event__favorite-checkbox  visually-hidden" type="checkbox"
+        name="event-favorite" ${isFavorite ? `checked` : ``}>
+      <label class="event__favorite-btn" for="event-favorite-${id}">
+        <span class="visually-hidden">Add to favorite</span>
+        <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+          <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+        </svg>
+      </label>
+
+      <button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Open event</span>
+      </button>`;
 };
 
 const getOffersMarkup = (offers, availableOffers, id) => {
@@ -92,7 +112,8 @@ const getEditFormTemplate = (options = {}) => {
     offers,
     availableOffers,
     availableDestinations,
-    isDescriptionShowing
+    isDescriptionShowing,
+    mode
   } = options;
   const fullDateFrom = formatFullDate(dateFrom);
   const fullDateTo = formatFullDate(dateTo);
@@ -106,6 +127,8 @@ const getEditFormTemplate = (options = {}) => {
   const description = (isDescriptionShowing) ? availableDestinations.find((item) => item.name === destination) : null;
   const descriptionMarkup = (isDescriptionShowing && description) ? getDestinationDescriptionMarkup(description) : ``;
   const isBottomBlockShowing = areOffers || isDescriptionShowing;
+  const isCreatingPoint = mode === Mode.ADDING;
+  const buttonsMarkup = getButtonsMarkup(isCreatingPoint, id, isFavorite);
 
   return (
     `<form class="event  event--edit" action="#" method="post">
@@ -162,20 +185,7 @@ const getEditFormTemplate = (options = {}) => {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-
-        <input id="event-favorite-${id}" class="event__favorite-checkbox  visually-hidden" type="checkbox"
-          name="event-favorite" ${isFavorite ? `checked` : ``}>
-        <label class="event__favorite-btn" for="event-favorite-${id}">
-          <span class="visually-hidden">Add to favorite</span>
-          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-            <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
-          </svg>
-        </label>
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        ${buttonsMarkup}
       </header>
 
       ${isBottomBlockShowing
@@ -198,7 +208,7 @@ const getEditFormTemplate = (options = {}) => {
 };
 
 export default class EditEvent extends AbstractSmartComponent {
-  constructor(event, availableOffers, availableDestinations) {
+  constructor(event, availableOffers, availableDestinations, mode) {
     super();
     this._event = event;
     this._id = event.id;
@@ -213,6 +223,7 @@ export default class EditEvent extends AbstractSmartComponent {
 
     this._availableOffers = availableOffers;
     this._availableDestinations = availableDestinations;
+    this._mode = mode;
 
     this._dateFromFlatpicker = null;
     this._dateToFlatpicker = null;
@@ -238,7 +249,8 @@ export default class EditEvent extends AbstractSmartComponent {
       offers: this._offers,
       availableOffers: this._availableOffers[this._type],
       availableDestinations: this._availableDestinations,
-      isDescriptionShowing: this._isDestinationDescriptionShowing
+      isDescriptionShowing: this._isDestinationDescriptionShowing,
+      mode: this._mode
     });
   }
 
@@ -256,12 +268,18 @@ export default class EditEvent extends AbstractSmartComponent {
   }
 
   setRollupButtonClickHandler(handler) {
+    if (this._mode === Mode.ADDING) {
+      return;
+    }
     const rollupButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
     this._rollupHandler = handler;
     rollupButtonElement.addEventListener(`click`, handler);
   }
 
   setFavoriteButtonClickHandler(handler) {
+    if (this._mode === Mode.ADDING) {
+      return;
+    }
     this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, handler);
     this._favoriteButtonClickHandler = handler;

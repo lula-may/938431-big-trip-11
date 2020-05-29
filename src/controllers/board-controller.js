@@ -1,6 +1,7 @@
 import DayComponent from "../components/day.js";
 import EventController from "./event-controller.js";
 import ListComponent from "../components/list.js";
+import NoPointsComponent from "../components/no-points.js";
 import SortComponent from "../components/sort.js";
 import {render, remove} from "../utils/render.js";
 import {getUniqueDates, getSortedPoints} from "../utils/components-data.js";
@@ -34,6 +35,11 @@ export default class BoardController {
   }
 
   render() {
+    if (!this._pointsModel.getPoints().length) {
+      render(this._container, new NoPointsComponent());
+      return;
+    }
+
     render(this._container, this._sortComponent);
     this._renderPointsList();
   }

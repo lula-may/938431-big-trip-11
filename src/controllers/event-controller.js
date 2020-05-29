@@ -4,7 +4,7 @@ import {render, replace, remove} from "../utils/render.js";
 import {offersByType} from "../mock/point.js";
 import {EVENT_TYPES} from "../const.js";
 
-const Mode = {
+export const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
   ADDING: `adding`
@@ -75,7 +75,7 @@ export default class EventController {
     const oldEditEventComponent = this._editEventComponent;
 
     this._eventComponent = new EventComponent(event);
-    this._editEventComponent = new EditEventComponent(event, this._offers, this._destinations);
+    this._editEventComponent = new EditEventComponent(event, this._offers, this._destinations, this._mode);
 
     this._eventComponent.setRollupButtonClickHandler(() => {
       this._replacePointToEdit();

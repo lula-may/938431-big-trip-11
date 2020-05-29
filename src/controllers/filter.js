@@ -1,6 +1,6 @@
 import FilterComponent from "../components/filter.js";
 import {FilterType} from "../const";
-import {render} from "../utils/render.js";
+import {render, replace} from "../utils/render.js";
 
 const today = new Date();
 
@@ -38,13 +38,19 @@ export default class Filter {
   }
 
   render() {
+    const oldComponent = this._filterComponent;
     this._filterComponent = new FilterComponent();
-    render(this._container, this._filterComponent);
     this._filterComponent.setFilterChangeHandler(this._onFilterTypeChange);
+    if (oldComponent) {
+      replace(this._filterComponent, oldComponent);
+      return;
+    }
+    render(this._container, this._filterComponent);
   }
 
   resetActiveFilter() {
     this._activeFilter = FilterType.EVERYTHING;
+    this.render();
   }
 
   _onFilterTypeChange(type) {

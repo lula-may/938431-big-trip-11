@@ -101,10 +101,11 @@ const getEditFormTemplate = (options = {}) => {
   const eventTitle = getEventDescription(type);
   const destinations = availableDestinations.map((item) => item.name);
   const destinationsDatasetMarkup = getDatasetMarkup(destinations);
-  const areOffers = !!(offers.length);
+  const areOffers = !!(availableOffers.length);
   const offersMarkup = areOffers ? getOffersMarkup(offers, availableOffers, id) : ``;
   const description = (isDescriptionShowing) ? availableDestinations.find((item) => item.name === destination) : null;
   const descriptionMarkup = (isDescriptionShowing && description) ? getDestinationDescriptionMarkup(description) : ``;
+  const isBottomBlockShowing = areOffers || isDescriptionShowing;
 
   return (
     `<form class="event  event--edit" action="#" method="post">
@@ -177,19 +178,22 @@ const getEditFormTemplate = (options = {}) => {
         </button>
       </header>
 
-      <section class="event__details">
-        ${areOffers
+      ${isBottomBlockShowing
+      ? `<section class="event__details">
+          ${areOffers
       ? `<section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            <div class="event__available-offers">
-            ${offersMarkup}
-            </div>
-          </section>`
+              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+              <div class="event__available-offers">
+              ${offersMarkup}
+              </div>
+            </section>`
       : ``
     }
-        ${descriptionMarkup}
-      </section>
-    </form>`
+          ${descriptionMarkup}
+        </section>`
+      : ``
+    }
+      </form>`
   );
 };
 

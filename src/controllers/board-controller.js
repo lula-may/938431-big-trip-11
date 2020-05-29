@@ -6,15 +6,22 @@ import {render, remove} from "../utils/render.js";
 import {getUniqueDates, getSortedPoints} from "../utils/components-data.js";
 import {SortType} from "../const.js";
 
+const Mode = {
+  DEFAULT: `default`,
+  ADDING: `adding`
+};
+
 export default class BoardController {
   constructor(container, pointsModel, destinations) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._destinations = destinations;
-    this._listComponent = new ListComponent();
+    this._listComponent = null;
     this._sortComponent = new SortComponent();
     this._dayComponents = [];
     this._showedPointsControllers = [];
+    this._creatingEvent = null;
+    this._mode = Mode.DEFAULT;
     this._activeSort = SortType.EVENT;
 
     this._onViewChange = this._onViewChange.bind(this);
@@ -28,7 +35,6 @@ export default class BoardController {
 
   render() {
     render(this._container, this._sortComponent);
-    render(this._container, this._listComponent);
     this._renderPointsList();
   }
 
@@ -36,6 +42,14 @@ export default class BoardController {
     this._activeSort = SortType.EVENT;
     this._sortComponent.setActiveSort(SortType.EVENT);
     this._updatePoints();
+  }
+
+  createEvent() {
+    this._mode = Mode.ADDING;
+    this._creatingEvent = new EventController(this._container, this._destinations, this._onViewChange, this._onDataChange);
+    this._removePointsList();
+    this._creatingEvent.render(null);
+    this._renderPointsList();
   }
 
   _renderPoints(container, points) {
@@ -47,6 +61,8 @@ export default class BoardController {
   }
 
   _renderPointsList() {
+    this._listComponent = new ListComponent();
+    render(this._container, this._listComponent);
     const listContainerElement = this._listComponent.getElement();
 
     switch (this._activeSort) {
@@ -84,6 +100,7 @@ export default class BoardController {
     this._removePoints();
     this._dayComponents.forEach((day) => remove(day));
     this._dayComponents = [];
+    remove(this._listComponent);
   }
 
   _updatePoints() {
@@ -102,12 +119,30 @@ export default class BoardController {
   }
 
   _onDataChange(oldData, newData) {
+    // Создание новой точки маршрута
+    if (this._mode === Mode.ADDING && !oldData.id) {
+      if (newData === null) {
+        this._creatingEvent.destroy();
+        this._updatePoints();
+      } else {
+        newData.id = Math.round(new Date() * Math.random()).toString();
+        this._pointsModel.addPoint(newData);
+        this._showedPointsControllers.push(this._creatingEvent);
+        this._updatePoints();
+      }
+      this._creatingEvent = null;
+      this._mode = Mode.DEFAULT;
+      return;
+    }
+    // Удаление точки маршрута
     if (newData === null) {
       const isSuccess = this._pointsModel.deletePoint(oldData.id);
       if (isSuccess) {
         this._updatePoints();
       }
+      return;
     }
+    // Редактирование точки маршрута
     const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
     if (isSuccess) {
       this._updatePoints();

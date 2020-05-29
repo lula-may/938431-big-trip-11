@@ -48,6 +48,10 @@ export default class Points {
     return true;
   }
 
+  addPoint(event) {
+    this._points.push(event);
+  }
+
   setFilter(filter) {
     this._activeFilter = filter;
     this._callHandler(this._onFilterChange);

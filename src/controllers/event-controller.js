@@ -2,11 +2,26 @@ import EditEventComponent, {getShortName, parseDate} from "../components/edit-ev
 import EventComponent from "../components/event.js";
 import {render, replace, remove} from "../utils/render.js";
 import {offersByType} from "../mock/point.js";
+import {EVENT_TYPES} from "../const.js";
 
 const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
   ADDING: `adding`
+};
+
+const ADDING_NEW_EVENT_CLASS = `trip-events__item`;
+
+const defaultType = EVENT_TYPES[0];
+
+const EmptyEvent = {
+  type: defaultType,
+  destination: ``,
+  dateFrom: null,
+  dateTo: null,
+  price: ``,
+  offers: [],
+  isFavorite: false
 };
 
 const parseFormData = (formData) => {
@@ -40,7 +55,6 @@ export default class EventController {
     this._eventComponent = null;
     this._editEventComponent = null;
     this._mode = Mode.DEFAULT;
-    this._event = null;
     this.id = ``;
     this._offers = [];
     this._onViewChange = onViewChange;
@@ -49,8 +63,12 @@ export default class EventController {
   }
 
   render(event) {
-    this._event = event;
-    this.id = this._event.id || ``;
+    if (!event) {
+      this._mode = Mode.ADDING;
+      event = Object.assign({}, EmptyEvent);
+    }
+
+    this.id = event.id || ``;
     this._offers = offersByType;
 
     const oldEventComponent = this._eventComponent;
@@ -74,11 +92,11 @@ export default class EventController {
 
     this._editEventComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
-      this._replaceEditToPoint();
       const formData = this._editEventComponent.getData();
       const newData = parseFormData(formData);
       newData.id = this.id || ``;
       this._onDataChange(event, newData);
+      this._replaceEditToPoint();
     });
 
     this._editEventComponent.setDeleteClickHandler((evt) => {
@@ -102,13 +120,17 @@ export default class EventController {
           replace(this._eventComponent, oldEventComponent);
           replace(this._editEventComponent, oldEditEventComponent);
           this._replacePointToEdit();
-          break;
         }
+        break;
+      case Mode.ADDING:
+        this._editEventComponent.getElement().classList.add(ADDING_NEW_EVENT_CLASS);
+        document.addEventListener(`keydown`, this._onEscKeyDown);
+        render(this._container, this._editEventComponent);
     }
   }
 
   rerender(id, newPoint) {
-    if (this._event.id !== id) {
+    if (this.id !== id) {
       return;
     }
     this.render(newPoint);
@@ -124,6 +146,13 @@ export default class EventController {
     remove(this._eventComponent);
     remove(this._editEventComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
+  }
+
+  removeCreatingPoint() {
+    if (this._mode !== Mode.ADDING) {
+      return;
+    }
+    this._onDataChange(EmptyEvent, null);
   }
 
   _replacePointToEdit() {
@@ -145,6 +174,7 @@ export default class EventController {
   _onEscKeyDown(evt) {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey && evt.target.tagName !== `INPUT`) {
+      this.removeCreatingPoint();
       this._editEventComponent.reset();
       this._replaceEditToPoint();
     }

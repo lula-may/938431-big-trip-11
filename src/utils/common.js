@@ -27,6 +27,12 @@ const formatFullDate = (date) => {
   return moment(date).format(`DD/MM/YY HH:mm`);
 };
 
+const formatDatesInterval = (dateFrom, dateTo) => {
+  const fromDate = moment(dateFrom).format(`D MMM`);
+  const toDate = moment(dateTo).format(`D MMM`);
+  return `${fromDate} &mdash; ${toDate}`;
+};
+
 const transportEvents = new Set(MEANS_OF_TRANSPORT);
 
 const getEventDescription = (type, place) => {
@@ -39,4 +45,4 @@ const getEventDescription = (type, place) => {
 };
 
 
-export {capitalizeFirstLetter, formatDurationTime, formatFullDate, getEventDescription};
+export {capitalizeFirstLetter, formatDurationTime, formatFullDate, formatDatesInterval, getEventDescription};

@@ -1,9 +1,9 @@
 import BoardController from "./controllers/board-controller.js";
 import FilterController from "./controllers/filter.js";
-import HeaderInfoComponent from "./components/header-info.js";
+import HeaderController from "./controllers/header.js";
 import MainNavComponent from "./components/main-nav.js";
 import PointsModel from "./models/points.js";
-import {RenderPosition, render} from "./utils/render.js";
+import {render} from "./utils/render.js";
 import {generatePoints, allDestinations} from "./mock/point.js";
 import {FilterType} from "./const.js";
 
@@ -18,9 +18,9 @@ const mainNavComponent = new MainNavComponent();
 const pointsModel = new PointsModel();
 const points = generatePoints(POINTS_AMOUNT);
 pointsModel.setPoints(points);
-const headerInfoComponent = new HeaderInfoComponent(pointsModel);
+const headerController = new HeaderController(headerContainerElement, pointsModel);
 
-render(headerContainerElement, headerInfoComponent, RenderPosition.AFTERBEGIN);
+headerController.render();
 render(headerControlsElement, mainNavComponent);
 const filterController = new FilterController(headerControlsElement, pointsModel);
 const boardController = new BoardController(mainContainerElement, pointsModel, allDestinations);

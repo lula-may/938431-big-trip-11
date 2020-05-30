@@ -36,6 +36,7 @@ export default class Points {
     }
 
     this._points = [...this._points.slice(0, index), newPoint, ...this._points.slice(index + 1)];
+    this._callHandler(this._onDataChange);
     return true;
   }
 
@@ -45,11 +46,13 @@ export default class Points {
       return false;
     }
     this._points = [...this._points.slice(0, index), ...this._points.slice(index + 1)];
+    this._callHandler(this._onDataChange);
     return true;
   }
 
   addPoint(event) {
     this._points.push(event);
+    this._callHandler(this._onDataChange);
   }
 
   setFilter(filter) {
@@ -59,6 +62,10 @@ export default class Points {
 
   setFilterChangeHandler(handler) {
     this._onFilterChange = handler;
+  }
+
+  setDataChangeHandler(handler) {
+    this._onDataChange = handler;
   }
 
   _callHandler(handler) {

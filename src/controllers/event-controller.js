@@ -29,7 +29,7 @@ const parseFormData = (formData) => {
   const destination = formData.get(`event-destination`);
   const dateFrom = parseDate(formData.get(`event-start-time`));
   const dateTo = parseDate(formData.get(`event-end-time`));
-  const price = formData.get(`event-price`);
+  const price = parseInt(formData.get(`event-price`), 10);
   const isFavorite = !!(formData.get(`event-favorite`));
   const offersNames = formData.getAll(`event-offer`);
   const availabledOffers = offersByType[type];

@@ -5,12 +5,14 @@ import NoPointsComponent from "../components/no-points.js";
 import SortComponent from "../components/sort.js";
 import {render, remove} from "../utils/render.js";
 import {getUniqueDates, getSortedPoints} from "../utils/components-data.js";
-import {SortType} from "../const.js";
+import {SortType, HIDDEN_CLASS} from "../const.js";
 
 const Mode = {
   DEFAULT: `default`,
   ADDING: `adding`
 };
+
+const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
 export default class BoardController {
   constructor(container, pointsModel, destinations) {
@@ -56,6 +58,14 @@ export default class BoardController {
     this._removePointsList();
     this._creatingEvent.render(null);
     this._renderPointsList();
+  }
+
+  show() {
+    this._container.classList.remove(HIDDEN_CLASS);
+  }
+
+  hide() {
+    this._container.classList.add(HIDDEN_CLASS);
   }
 
   _renderPoints(container, points) {
@@ -138,6 +148,7 @@ export default class BoardController {
       }
       this._creatingEvent = null;
       this._mode = Mode.DEFAULT;
+      newEventButtonElement.disabled = false;
       return;
     }
     // Удаление точки маршрута

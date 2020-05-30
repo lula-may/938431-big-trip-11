@@ -56,6 +56,7 @@ export default class EventController {
     this._editEventComponent = null;
     this._mode = Mode.DEFAULT;
     this.id = ``;
+    this._event = null;
     this._offers = [];
     this._onViewChange = onViewChange;
     this._onDataChange = onDataChange;
@@ -68,6 +69,7 @@ export default class EventController {
       event = Object.assign({}, EmptyEvent);
     }
 
+    this._event = event;
     this.id = event.id || ``;
     this._offers = offersByType;
 
@@ -83,11 +85,10 @@ export default class EventController {
 
     this._editEventComponent.setRollupButtonClickHandler(() => {
       this._replaceEditToPoint();
-    });
-
-    this._editEventComponent.setFavoriteButtonClickHandler(() => {
-      const newData = Object.assign({}, event, {isFavorite: !event.isFavorite});
-      this._onDataChange(event, newData);
+      if (this._editEventComponent.isUpdated) {
+        const newData = this._editEventComponent.getUpdatedEvent();
+        this._onDataChange(event, newData);
+      }
     });
 
     this._editEventComponent.setSubmitHandler((evt) => {
@@ -173,8 +174,12 @@ export default class EventController {
 
   _onEscKeyDown(evt) {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
-    if (isEscKey && evt.target.tagName !== `INPUT`) {
+    if (isEscKey && evt.target.type !== `text` && evt.target.type !== `number`) {
       this.removeCreatingPoint();
+      if (this._editEventComponent.isUpdated) {
+        const newData = this._editEventComponent.getUpdatedEvent();
+        this._onDataChange(this._event, newData);
+      }
       this._editEventComponent.reset();
       this._replaceEditToPoint();
     }

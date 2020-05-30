@@ -224,7 +224,8 @@ export default class EditEvent extends AbstractSmartComponent {
     this._availableOffers = availableOffers;
     this._availableDestinations = availableDestinations;
     this._mode = mode;
-
+    this._updatedEvent = Object.assign({}, this._event);
+    this.isUpdated = false;
     this._dateFromFlatpicker = null;
     this._dateToFlatpicker = null;
 
@@ -254,6 +255,10 @@ export default class EditEvent extends AbstractSmartComponent {
     });
   }
 
+  getUpdatedEvent() {
+    return this._updatedEvent;
+  }
+
   rerender() {
     super.rerender();
     this._applyFlatpickers();
@@ -261,7 +266,6 @@ export default class EditEvent extends AbstractSmartComponent {
 
   recoveryListeners() {
     this.setRollupButtonClickHandler(this._rollupHandler);
-    this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
     this.setSubmitHandler(this._submitHandler);
     this.setDeleteClickHandler(this._deleteClickHandler);
     this._subscribeOnEvents();
@@ -274,15 +278,6 @@ export default class EditEvent extends AbstractSmartComponent {
     const rollupButtonElement = this.getElement().querySelector(`.event__rollup-btn`);
     this._rollupHandler = handler;
     rollupButtonElement.addEventListener(`click`, handler);
-  }
-
-  setFavoriteButtonClickHandler(handler) {
-    if (this._mode === Mode.ADDING) {
-      return;
-    }
-    this.getElement().querySelector(`.event__favorite-checkbox`)
-      .addEventListener(`click`, handler);
-    this._favoriteButtonClickHandler = handler;
   }
 
   setSubmitHandler(handler) {
@@ -375,7 +370,7 @@ export default class EditEvent extends AbstractSmartComponent {
         this.rerender();
       });
 
-    // Обработчик изменения места назначения
+    // Обработчики изменения места назначения
     destinationInputElement.addEventListener(`input`, (evt) => {
       this._setDestinationInputValidity();
       if (!destinationInputElement.checkValidity()) {
@@ -389,6 +384,16 @@ export default class EditEvent extends AbstractSmartComponent {
       this._isDestinationDescriptionShowing = true;
       this.rerender();
     });
+
+    // Обработчик клика по кнопке Favorite
+    const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
+    if (favoriteButtonElement) {
+      favoriteButtonElement.addEventListener(`click`, () => {
+        this._updatedEvent.isFavorite = !this._updatedEvent.isFavorite;
+        this.isUpdated = !this.isUpdated;
+      });
+    }
+
   }
 
   _setDestinationInputValidity() {

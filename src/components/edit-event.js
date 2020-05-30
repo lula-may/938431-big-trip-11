@@ -385,6 +385,11 @@ export default class EditEvent extends AbstractSmartComponent {
       this.rerender();
     });
 
+    // Обработчик изменения цены
+    element.querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
+      this._price = evt.target.value;
+    });
+
     // Обработчик клика по кнопке Favorite
     const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
     if (favoriteButtonElement) {

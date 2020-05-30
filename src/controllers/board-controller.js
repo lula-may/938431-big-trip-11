@@ -127,6 +127,11 @@ export default class BoardController {
 
   _onViewChange() {
     this._showedPointsControllers.forEach((controller) => controller.setDefaultView());
+    if (this._creatingEvent) {
+      this._creatingEvent.destroy();
+      this._creatingEvent = null;
+      newEventButtonElement.disabled = false;
+    }
   }
 
   _onSortTypeChange(type) {

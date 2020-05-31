@@ -122,7 +122,7 @@ const getPoint = () => {
     type,
     dateFrom,
     dateTo,
-    destination: getRandomItem(DESTINATIONS),
+    destination: getRandomItem(allDestinations),
     price: getRandomInteger(20, 1000),
     offers,
     isFavorite: Math.random() > 0.5
@@ -137,4 +137,4 @@ const generatePoints = (amount) => {
   return points;
 };
 
-export {generatePoints, offersByType, allDestinations};
+export {generatePoints, offersByType, generateDestinations};

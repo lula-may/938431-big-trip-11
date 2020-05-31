@@ -35,7 +35,7 @@ const formatDatesInterval = (dateFrom, dateTo) => {
 
 const transportEvents = new Set(MEANS_OF_TRANSPORT);
 
-const getEventDescription = (type, place) => {
+const getEventTitle = (type, place) => {
   const typeString = capitalizeFirstLetter(type);
   const placeString = place || ``;
   if (transportEvents.has(type)) {
@@ -45,4 +45,4 @@ const getEventDescription = (type, place) => {
 };
 
 
-export {capitalizeFirstLetter, formatDurationTime, formatFullDate, formatDatesInterval, getEventDescription};
+export {capitalizeFirstLetter, formatDurationTime, formatFullDate, formatDatesInterval, getEventTitle};

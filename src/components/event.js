@@ -1,5 +1,5 @@
 import AbstractComponent from "./abstract-component";
-import {formatDurationTime, getEventDescription} from "../utils/common.js";
+import {formatDurationTime, getEventTitle} from "../utils/common.js";
 import moment from "moment";
 
 
@@ -26,7 +26,7 @@ const getEventTemplate = (event) => {
   const duration = to.diff(from, `minutes`);
   const durationText = formatDurationTime(duration);
   const offersMarkup = getOffersMarkup(offers);
-  const description = getEventDescription(type, destination);
+  const title = getEventTitle(type, destination.name);
 
   return (
     `<li class="trip-events__item">
@@ -34,7 +34,7 @@ const getEventTemplate = (event) => {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${description}</h3>
+      <h3 class="event__title">${title}</h3>
 
       <div class="event__schedule">
         <p class="event__time">

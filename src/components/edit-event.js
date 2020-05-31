@@ -1,6 +1,6 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
-import {capitalizeFirstLetter, getEventDescription, formatFullDate} from "../utils/common.js";
+import {capitalizeFirstLetter, getEventTitle, formatFullDate} from "../utils/common.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import {Mode} from "../controllers/event-controller.js";
@@ -84,12 +84,13 @@ const getPicturesMarkup = (pictures) => {
 
 const getDestinationDescriptionMarkup = (destination) => {
   const {description, pictures} = destination;
+  const isDescription = !!description;
   const picturesMarkup = getPicturesMarkup(pictures);
 
   return (
     `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${description}</p>
+      <p class="event__destination-description">${isDescription ? description : ``}</p>
 
       <div class="event__photos-container">
         <div class="event__photos-tape">
@@ -112,21 +113,21 @@ const getEditFormTemplate = (options = {}) => {
     offers,
     availableOffers,
     availableDestinations,
-    isDescriptionShowing,
     mode
   } = options;
+
   const fullDateFrom = formatFullDate(dateFrom);
   const fullDateTo = formatFullDate(dateTo);
   const transportListMarkup = getRadioListMarkup(MEANS_OF_TRANSPORT, id, type);
   const activityListMarkup = getRadioListMarkup(PLACES, id, type);
-  const eventTitle = getEventDescription(type);
-  const destinations = availableDestinations.map((item) => item.name);
-  const destinationsDatasetMarkup = getDatasetMarkup(destinations);
+  const eventTitle = getEventTitle(type);
+  const name = destination.name;
+  const destinationsDatasetMarkup = getDatasetMarkup(availableDestinations);
   const areOffers = !!(availableOffers.length);
   const offersMarkup = areOffers ? getOffersMarkup(offers, availableOffers, id) : ``;
-  const description = (isDescriptionShowing) ? availableDestinations.find((item) => item.name === destination) : null;
-  const descriptionMarkup = (isDescriptionShowing && description) ? getDestinationDescriptionMarkup(description) : ``;
-  const isBottomBlockShowing = areOffers || isDescriptionShowing;
+  const isDescription = !!destination.description || !!destination.pictures.length;
+  const descriptionMarkup = isDescription ? getDestinationDescriptionMarkup(destination) : ``;
+  const isBottomBlockShowing = areOffers || isDescription;
   const isCreatingPoint = mode === Mode.ADDING;
   const buttonsMarkup = getButtonsMarkup(isCreatingPoint, id, isFavorite);
 
@@ -158,7 +159,7 @@ const getEditFormTemplate = (options = {}) => {
             ${eventTitle}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-${id}"
-            type="text" name="event-destination" value="${destination}" list="destination-list-${id}" required>
+            type="text" name="event-destination" value="${name}" list="destination-list-${id}" required>
           <datalist id="destination-list-${id}">
             ${destinationsDatasetMarkup}
           </datalist>
@@ -208,7 +209,7 @@ const getEditFormTemplate = (options = {}) => {
 };
 
 export default class EditEvent extends AbstractSmartComponent {
-  constructor(event, availableOffers, availableDestinations, mode) {
+  constructor(event, availableOffers, destinationsModel, mode) {
     super();
     this._event = event;
     this._id = event.id;
@@ -219,11 +220,12 @@ export default class EditEvent extends AbstractSmartComponent {
     this._price = event.price;
     this._offers = event.offers;
     this._isFavorite = event.isFavorite;
-    this._isDestinationDescriptionShowing = false;
 
     this._availableOffers = availableOffers;
-    this._availableDestinations = availableDestinations;
+    this._destinationsModel = destinationsModel;
+    this._availableDestinations = this._destinationsModel.getDestinations().map((item) => item.name);
     this._mode = mode;
+
     this._updatedEvent = Object.assign({}, this._event);
     this.isUpdated = false;
     this._dateFromFlatpicker = null;
@@ -250,7 +252,6 @@ export default class EditEvent extends AbstractSmartComponent {
       offers: this._offers,
       availableOffers: this._availableOffers[this._type],
       availableDestinations: this._availableDestinations,
-      isDescriptionShowing: this._isDestinationDescriptionShowing,
       mode: this._mode
     });
   }
@@ -299,12 +300,7 @@ export default class EditEvent extends AbstractSmartComponent {
     this._dateFrom = event.dateFrom;
     this._dateTo = event.dateTo;
     this._offers = event.offers;
-    this.resetDescriptionShowing();
     this.rerender();
-  }
-
-  resetDescriptionShowing() {
-    this._isDestinationDescriptionShowing = false;
   }
 
   getData() {
@@ -354,8 +350,6 @@ export default class EditEvent extends AbstractSmartComponent {
     });
   }
 
-  _showDestinationDescription() {}
-
   _subscribeOnEvents() {
     const element = this.getElement();
     const destinationInputElement = element.querySelector(`.event__input--destination`);
@@ -371,17 +365,15 @@ export default class EditEvent extends AbstractSmartComponent {
       });
 
     // Обработчики изменения места назначения
-    destinationInputElement.addEventListener(`input`, (evt) => {
+    destinationInputElement.addEventListener(`input`, () => {
       this._setDestinationInputValidity();
       if (!destinationInputElement.checkValidity()) {
         return;
       }
-      this._destination = evt.target.value;
     });
 
     destinationInputElement.addEventListener(`change`, (evt) => {
-      this._destination = capitalizeFirstLetter(evt.target.value);
-      this._isDestinationDescriptionShowing = true;
+      this._destination = this._destinationsModel.getDestinationByName(evt.target.value);
       this.rerender();
     });
 

@@ -15,10 +15,10 @@ const Mode = {
 const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
 export default class BoardController {
-  constructor(container, pointsModel, destinations) {
+  constructor(container, pointsModel, destinationsModel) {
     this._container = container;
     this._pointsModel = pointsModel;
-    this._destinations = destinations;
+    this._destinationsModel = destinationsModel;
     this._listComponent = null;
     this._sortComponent = new SortComponent();
     this._dayComponents = [];
@@ -54,7 +54,7 @@ export default class BoardController {
 
   createEvent() {
     this._mode = Mode.ADDING;
-    this._creatingEvent = new EventController(this._container, this._destinations, this._onViewChange, this._onDataChange);
+    this._creatingEvent = new EventController(this._container, this._destinationsModel, this._onViewChange, this._onDataChange);
     this._removePointsList();
     this._creatingEvent.render(null);
     this._renderPointsList();
@@ -70,7 +70,7 @@ export default class BoardController {
 
   _renderPoints(container, points) {
     points.forEach((point) => {
-      const newController = new EventController(container, this._destinations, this._onViewChange, this._onDataChange);
+      const newController = new EventController(container, this._destinationsModel, this._onViewChange, this._onDataChange);
       newController.render(point);
       this._showedPointsControllers.push(newController);
     });

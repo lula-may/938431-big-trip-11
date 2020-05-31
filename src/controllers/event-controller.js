@@ -16,7 +16,11 @@ const defaultType = EVENT_TYPES[0];
 
 const EmptyEvent = {
   type: defaultType,
-  destination: ``,
+  destination: {
+    name: ``,
+    description: null,
+    pictures: []
+  },
   dateFrom: null,
   dateTo: null,
   price: ``,
@@ -24,9 +28,10 @@ const EmptyEvent = {
   isFavorite: false
 };
 
-const parseFormData = (formData) => {
+const parseFormData = (formData, destinationsModel) => {
   const type = formData.get(`event-type`);
-  const destination = formData.get(`event-destination`);
+  const destinationName = formData.get(`event-destination`);
+  const destination = destinationsModel.getDestinationByName(destinationName);
   const dateFrom = parseDate(formData.get(`event-start-time`));
   const dateTo = parseDate(formData.get(`event-end-time`));
   const price = parseInt(formData.get(`event-price`), 10);
@@ -49,9 +54,9 @@ const parseFormData = (formData) => {
 };
 
 export default class EventController {
-  constructor(container, destinations, onViewChange, onDataChange) {
+  constructor(container, destinationsModel, onViewChange, onDataChange) {
     this._container = container;
-    this._destinations = destinations;
+    this._destinationsModel = destinationsModel;
     this._eventComponent = null;
     this._editEventComponent = null;
     this._mode = Mode.DEFAULT;
@@ -73,11 +78,12 @@ export default class EventController {
     this.id = event.id || ``;
     this._offers = offersByType;
 
+
     const oldEventComponent = this._eventComponent;
     const oldEditEventComponent = this._editEventComponent;
 
     this._eventComponent = new EventComponent(event);
-    this._editEventComponent = new EditEventComponent(event, this._offers, this._destinations, this._mode);
+    this._editEventComponent = new EditEventComponent(event, this._offers, this._destinationsModel, this._mode);
 
     this._eventComponent.setRollupButtonClickHandler(() => {
       this._replacePointToEdit();
@@ -94,7 +100,7 @@ export default class EventController {
     this._editEventComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
       const formData = this._editEventComponent.getData();
-      const newData = parseFormData(formData);
+      const newData = parseFormData(formData, this._destinationsModel);
       newData.id = this.id || ``;
       this._onDataChange(event, newData);
       this._replaceEditToPoint();
@@ -169,7 +175,6 @@ export default class EventController {
     }
     this._mode = Mode.DEFAULT;
     document.removeEventListener(`keydown`, this._onEscKeyDown);
-    this._editEventComponent.resetDescriptionShowing();
   }
 
   _onEscKeyDown(evt) {

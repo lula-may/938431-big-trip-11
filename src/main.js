@@ -1,11 +1,14 @@
 import BoardController from "./controllers/board-controller.js";
 import FilterController from "./controllers/filter.js";
 import HeaderController from "./controllers/header.js";
+
 import MainNavComponent, {MenuItem} from "./components/main-nav.js";
-import PointsModel from "./models/points.js";
 import StatisticsComponent from "./components/stats.js";
+
+import DestinationsModel from "./models/destinations.js";
+import PointsModel from "./models/points.js";
 import {render} from "./utils/render.js";
-import {generatePoints, allDestinations} from "./mock/point.js";
+import {generatePoints, generateDestinations} from "./mock/point.js";
 import {FilterType} from "./const.js";
 
 const POINTS_AMOUNT = 10;
@@ -18,13 +21,17 @@ const addNewButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
 const mainNavComponent = new MainNavComponent();
 const pointsModel = new PointsModel();
+const destinationsModel = new DestinationsModel();
+
 const points = generatePoints(POINTS_AMOUNT);
+const destinations = generateDestinations();
 pointsModel.setPoints(points);
+destinationsModel.setDestinations(destinations);
 
 const headerController = new HeaderController(headerContainerElement, pointsModel);
 const statisticsComponent = new StatisticsComponent(pointsModel);
 const filterController = new FilterController(headerControlsElement, pointsModel);
-const boardController = new BoardController(mainContainerElement, pointsModel, allDestinations);
+const boardController = new BoardController(mainContainerElement, pointsModel, destinationsModel);
 
 headerController.render();
 render(headerControlsElement, mainNavComponent);

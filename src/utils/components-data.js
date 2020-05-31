@@ -1,5 +1,6 @@
 import {SortType} from "../const.js";
 import {formatDatesInterval} from "./common.js";
+
 const getUniqueDates = (points) => {
   return points.filter((point, i) => {
     const date = point.dateFrom.getDate();
@@ -30,7 +31,7 @@ const getTripTitle = (points) => {
   if (!points.length) {
     return ``;
   }
-  const titles = points.map((point) => point.destination);
+  const titles = points.map((point) => point.destination.name);
   const notRepeatingTitles = titles.filter((item, i, items) => item !== items[i - 1]);
   const number = notRepeatingTitles.length;
   return (number > 3)

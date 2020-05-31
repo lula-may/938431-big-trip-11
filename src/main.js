@@ -22,7 +22,7 @@ const points = generatePoints(POINTS_AMOUNT);
 pointsModel.setPoints(points);
 
 const headerController = new HeaderController(headerContainerElement, pointsModel);
-const statisticsComponent = new StatisticsComponent();
+const statisticsComponent = new StatisticsComponent(pointsModel);
 const filterController = new FilterController(headerControlsElement, pointsModel);
 const boardController = new BoardController(mainContainerElement, pointsModel, allDestinations);
 
@@ -43,6 +43,7 @@ mainNavComponent.setChangeHandler((menuItem) => {
     case MenuItem.STATS:
       boardController.hide();
       boardController.resetSort();
+      statisticsComponent.rerender();
       statisticsComponent.show();
       break;
   }

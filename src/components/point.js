@@ -17,8 +17,8 @@ const getOffersMarkup = (offers) => {
   .join(`\n`);
 };
 
-const getEventTemplate = (event) => {
-  const {type, dateFrom, dateTo, destination, price, offers} = event;
+const getEventTemplate = (point) => {
+  const {type, dateFrom, dateTo, destination, price, offers} = point;
   const from = moment(dateFrom);
   const to = moment(dateTo);
   const timeFrom = from.format(`HH:mm`);
@@ -62,14 +62,14 @@ const getEventTemplate = (event) => {
   );
 };
 
-export default class Event extends AbstractComponent {
-  constructor(event) {
+export default class Point extends AbstractComponent {
+  constructor(point) {
     super();
-    this._event = event;
+    this._point = point;
   }
 
   getTemplate() {
-    return getEventTemplate(this._event);
+    return getEventTemplate(this._point);
   }
 
   setRollupButtonClickHandler(handler) {

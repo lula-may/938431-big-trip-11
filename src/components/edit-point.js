@@ -3,7 +3,7 @@ import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventTitle, formatFullDate} from "../utils/common.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import {Mode} from "../controllers/event-controller.js";
+import {Mode} from "../controllers/point-controller.js";
 
 export const getShortName = (text) => {
   return text.split(` `).pop().toLowerCase();
@@ -209,7 +209,7 @@ const getEditFormTemplate = (options = {}) => {
 };
 
 export default class EditEvent extends AbstractSmartComponent {
-  constructor(event, availableOffers, destinationsModel, mode) {
+  constructor(event, offersModel, destinationsModel, mode) {
     super();
     this._event = event;
     this._id = event.id;
@@ -221,8 +221,8 @@ export default class EditEvent extends AbstractSmartComponent {
     this._offers = event.offers;
     this._isFavorite = event.isFavorite;
 
-    this._availableOffers = availableOffers;
     this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._availableDestinations = this._destinationsModel.getDestinations().map((item) => item.name);
     this._mode = mode;
 
@@ -241,6 +241,8 @@ export default class EditEvent extends AbstractSmartComponent {
   }
 
   getTemplate() {
+    const availableOffers = this._offersModel.getOffersByType(this._type).offers;
+
     return getEditFormTemplate({
       id: this._id,
       type: this._type,
@@ -250,7 +252,7 @@ export default class EditEvent extends AbstractSmartComponent {
       price: this._price,
       isFavorite: this._isFavorite,
       offers: this._offers,
-      availableOffers: this._availableOffers[this._type],
+      availableOffers,
       availableDestinations: this._availableDestinations,
       mode: this._mode
     });

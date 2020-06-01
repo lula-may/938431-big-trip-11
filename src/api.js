@@ -48,8 +48,8 @@ export default class API {
 
   updatePoint(id, point) {
     const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
     headers.append(`Content-type`, `application/json`);
+
     return this._load({
       url: `${URL.POINTS}/${id}`,
       method: Method.PUT,
@@ -58,6 +58,27 @@ export default class API {
     })
     .then((response) => response.json())
     .then(Point.parsePoint);
+  }
+
+  createPoint(point) {
+    const headers = new Headers();
+    headers.append(`Content-type`, `application/json`);
+
+    return this._load({
+      url: URL.POINTS,
+      method: Method.POST,
+      body: JSON.stringify(point.convertToRaw()),
+      headers
+    })
+    .then((response) => response.json())
+    .then(Point.parsePoint);
+  }
+
+  deletePoint(id) {
+    return this._load({
+      url: `${URL.POINTS}/${id}`,
+      method: Method.DELETE
+    });
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

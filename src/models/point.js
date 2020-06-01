@@ -14,7 +14,6 @@ export default class Point {
 
   convertToRaw() {
     return {
-      "id": this.id,
       "type": this.type,
       "date_from": this.dateFrom.toISOString(),
       "date_to": this.dateTo.toISOString(),

@@ -1,5 +1,4 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
-import PointModel from "../models/point.js";
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventTitle, formatFullDate} from "../utils/common.js";
 import flatpickr from "flatpickr";
@@ -213,7 +212,7 @@ export default class EditEvent extends AbstractSmartComponent {
   constructor(point, offersModel, destinationsModel, mode) {
     super();
     this._point = point;
-    this._id = point.id;
+    this._id = point.id || `new`;
     this._type = point.type;
     this._dateFrom = point.dateFrom;
     this._dateTo = point.dateTo;
@@ -227,7 +226,7 @@ export default class EditEvent extends AbstractSmartComponent {
     this._availableDestinations = this._destinationsModel.getDestinations().map((item) => item.name);
     this._mode = mode;
 
-    this._updatedPoint = PointModel.clone(point);
+    this._updatedPoint = Object.assign({}, point);
     this.isUpdated = false;
     this._dateFromFlatpicker = null;
     this._dateToFlatpicker = null;

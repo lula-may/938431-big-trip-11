@@ -59,7 +59,6 @@ export default class PointController {
     this._pointComponent = null;
     this._editPointComponent = null;
     this._mode = Mode.DEFAULT;
-    this.id = ``;
     this._point = null;
     this._onViewChange = onViewChange;
     this._onDataChange = onDataChange;
@@ -73,7 +72,6 @@ export default class PointController {
     }
 
     this._point = point;
-    this.id = point.id;
 
 
     const oldPointComponent = this._pointComponent;
@@ -98,7 +96,7 @@ export default class PointController {
       evt.preventDefault();
       const formData = this._editPointComponent.getData();
       const newData = parseFormData(formData, this._destinationsModel, this._offersModel);
-      newData.id = this.id;
+      newData.id = this._point.id;
       this._onDataChange(point, newData);
       this._replaceEditToPoint();
     });
@@ -134,7 +132,7 @@ export default class PointController {
   }
 
   rerender(id, newPoint) {
-    if (this.id !== id) {
+    if (this._point.id !== id) {
       return;
     }
     this.render(newPoint);

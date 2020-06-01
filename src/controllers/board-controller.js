@@ -152,33 +152,39 @@ export default class BoardController {
       if (newData === null) {
         this._creatingEvent.destroy();
         this._updatePoints();
+        this._creatingEvent = null;
+        this._mode = Mode.DEFAULT;
+        newEventButtonElement.disabled = false;
       } else {
-        newData.id = Math.round(new Date() * Math.random()).toString();
-        this._pointsModel.addPoint(newData);
-        this._showedPointsControllers.push(this._creatingEvent);
-        this._updatePoints();
-      }
-      this._creatingEvent = null;
-      this._mode = Mode.DEFAULT;
-      newEventButtonElement.disabled = false;
-      return;
-    }
-    // Удаление точки маршрута
-    if (newData === null) {
-      const isSuccess = this._pointsModel.deletePoint(oldData.id);
-      if (isSuccess) {
-        this._updatePoints();
-      }
-      return;
-    }
-    // Редактирование точки маршрута
-    this._api.updatePoint(oldData.id, newData)
-      .then((pointModel) => {
-        const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
-        if (isSuccess) {
+        this._api.createPoint(newData)
+        .then((pointModel) => {
+          this._pointsModel.addPoint(pointModel);
+          this._showedPointsControllers.push(this._creatingEvent);
           this._updatePoints();
-        }
-      });
+          this._creatingEvent = null;
+          this._mode = Mode.DEFAULT;
+          newEventButtonElement.disabled = false;
+        });
+      }
+    } else if (newData === null) {
+    // Удаление точки маршрута
+      this._api.deletePoint(oldData.id)
+        .then(() => {
+          const isSuccess = this._pointsModel.deletePoint(oldData.id);
+          if (isSuccess) {
+            this._updatePoints();
+          }
+        });
+    } else {
+      // Редактирование точки маршрута
+      this._api.updatePoint(oldData.id, newData)
+        .then((pointModel) => {
+          const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
+          if (isSuccess) {
+            this._updatePoints();
+          }
+        });
+    }
   }
 
   _onFilterTypeChange() {

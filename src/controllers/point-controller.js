@@ -1,5 +1,8 @@
 import EditPointComponent, {getShortName, parseDate} from "../components/edit-point.js";
 import PointComponent from "../components/point.js";
+
+import PointModel from "../models/point.js";
+
 import {render, replace, remove} from "../utils/render.js";
 import {POINT_TYPES} from "../const.js";
 
@@ -31,25 +34,21 @@ const parseFormData = (formData, destinationsModel, offersModel) => {
   const type = formData.get(`event-type`);
   const destinationName = formData.get(`event-destination`);
   const destination = destinationsModel.getDestinationByName(destinationName);
-  const dateFrom = parseDate(formData.get(`event-start-time`));
-  const dateTo = parseDate(formData.get(`event-end-time`));
-  const price = parseInt(formData.get(`event-price`), 10);
-  const isFavorite = !!(formData.get(`event-favorite`));
   const offersNames = formData.getAll(`event-offer`);
   const availabledOffers = offersModel.getOffersByType(type).offers;
   const offers = offersNames.map((name) => {
     return availabledOffers.find((offer) => getShortName(offer.title) === name);
   });
 
-  return {
-    type,
-    dateFrom,
-    dateTo,
-    destination,
-    price,
-    offers,
-    isFavorite
-  };
+  return new PointModel({
+    "type": type,
+    "date_from": parseDate(formData.get(`event-start-time`)),
+    "date_to": parseDate(formData.get(`event-end-time`)),
+    "destination": destination,
+    "base_price": parseInt(formData.get(`event-price`), 10),
+    "offers": offers,
+    "is_favorite": !!(formData.get(`event-favorite`))
+  });
 };
 
 export default class PointController {
@@ -74,7 +73,7 @@ export default class PointController {
     }
 
     this._point = point;
-    this.id = point.id || ``;
+    this.id = point.id;
 
 
     const oldPointComponent = this._pointComponent;
@@ -99,7 +98,7 @@ export default class PointController {
       evt.preventDefault();
       const formData = this._editPointComponent.getData();
       const newData = parseFormData(formData, this._destinationsModel, this._offersModel);
-      newData.id = this.id || ``;
+      newData.id = this.id;
       this._onDataChange(point, newData);
       this._replaceEditToPoint();
     });
@@ -180,7 +179,7 @@ export default class PointController {
     if (isEscKey && evt.target.type !== `text` && evt.target.type !== `number`) {
       this.removeCreatingPoint();
       if (this._editPointComponent.isUpdated) {
-        const newData = this._editPointComponent.getUpdatedpoint();
+        const newData = this._editPointComponent.getUpdatedPoint();
         this._onDataChange(this._point, newData);
       }
       this._editPointComponent.reset();

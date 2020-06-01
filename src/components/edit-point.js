@@ -1,4 +1,5 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
+import PointModel from "../models/point.js";
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventTitle, formatFullDate} from "../utils/common.js";
 import flatpickr from "flatpickr";
@@ -209,24 +210,24 @@ const getEditFormTemplate = (options = {}) => {
 };
 
 export default class EditEvent extends AbstractSmartComponent {
-  constructor(event, offersModel, destinationsModel, mode) {
+  constructor(point, offersModel, destinationsModel, mode) {
     super();
-    this._event = event;
-    this._id = event.id;
-    this._type = event.type;
-    this._dateFrom = event.dateFrom;
-    this._dateTo = event.dateTo;
-    this._destination = event.destination;
-    this._price = event.price;
-    this._offers = event.offers;
-    this._isFavorite = event.isFavorite;
+    this._point = point;
+    this._id = point.id;
+    this._type = point.type;
+    this._dateFrom = point.dateFrom;
+    this._dateTo = point.dateTo;
+    this._destination = point.destination;
+    this._price = point.price;
+    this._offers = point.offers;
+    this._isFavorite = point.isFavorite;
 
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
     this._availableDestinations = this._destinationsModel.getDestinations().map((item) => item.name);
     this._mode = mode;
 
-    this._updatedEvent = Object.assign({}, this._event);
+    this._updatedPoint = PointModel.clone(point);
     this.isUpdated = false;
     this._dateFromFlatpicker = null;
     this._dateToFlatpicker = null;
@@ -258,8 +259,8 @@ export default class EditEvent extends AbstractSmartComponent {
     });
   }
 
-  getUpdatedEvent() {
-    return this._updatedEvent;
+  getUpdatedPoint() {
+    return this._updatedPoint;
   }
 
   rerender() {
@@ -295,13 +296,13 @@ export default class EditEvent extends AbstractSmartComponent {
   }
 
   reset() {
-    const event = this._event;
-    this._type = event.type;
-    this._destination = event.destination;
-    this._price = event.price;
-    this._dateFrom = event.dateFrom;
-    this._dateTo = event.dateTo;
-    this._offers = event.offers;
+    const point = this._point;
+    this._type = point.type;
+    this._destination = point.destination;
+    this._price = point.price;
+    this._dateFrom = point.dateFrom;
+    this._dateTo = point.dateTo;
+    this._offers = point.offers;
     this.rerender();
   }
 
@@ -388,7 +389,7 @@ export default class EditEvent extends AbstractSmartComponent {
     const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
     if (favoriteButtonElement) {
       favoriteButtonElement.addEventListener(`click`, () => {
-        this._updatedEvent.isFavorite = !this._updatedEvent.isFavorite;
+        this._updatedPoint.isFavorite = !this._updatedPoint.isFavorite;
         this.isUpdated = !this.isUpdated;
       });
     }

@@ -35,7 +35,7 @@ const offersModel = new OffersModel();
 const headerController = new HeaderController(headerContainerElement, pointsModel);
 const statisticsComponent = new StatisticsComponent(pointsModel);
 const filterController = new FilterController(headerControlsElement, pointsModel);
-const boardController = new BoardController(mainContainerElement, pointsModel, destinationsModel, offersModel);
+const boardController = new BoardController(mainContainerElement, pointsModel, destinationsModel, offersModel, api);
 
 headerController.render();
 render(headerControlsElement, mainNavComponent);

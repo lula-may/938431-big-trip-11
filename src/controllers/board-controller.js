@@ -15,11 +15,13 @@ const Mode = {
 const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
 export default class BoardController {
-  constructor(container, pointsModel, destinationsModel, offersModel) {
+  constructor(container, pointsModel, destinationsModel, offersModel, api) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
+    this._api = api;
+
     this._listComponent = null;
     this._sortComponent = new SortComponent();
     this._dayComponents = [];
@@ -170,10 +172,13 @@ export default class BoardController {
       return;
     }
     // Редактирование точки маршрута
-    const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
-    if (isSuccess) {
-      this._updatePoints();
-    }
+    this._api.updatePoint(oldData.id, newData)
+      .then((pointModel) => {
+        const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
+        if (isSuccess) {
+          this._updatePoints();
+        }
+      });
   }
 
   _onFilterTypeChange() {

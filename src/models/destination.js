@@ -5,11 +5,28 @@ export default class Destination {
     this.pictures = this._parsePictures(data[`pictures`]);
   }
 
+  convertToRaw() {
+    return {
+      "name": this.name,
+      "description": this.description,
+      "pictures": this._getRawPictures()
+    };
+  }
+
   _parsePictures(pictures) {
     return pictures.map((picture) => {
       return {
         src: picture[`src`],
         description: picture[`description`]
+      };
+    });
+  }
+
+  _getRawPictures() {
+    return this.pictures.map((picture) => {
+      return {
+        "src": picture.src,
+        "description": picture.description
       };
     });
   }

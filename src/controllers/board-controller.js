@@ -1,5 +1,5 @@
 import DayComponent from "../components/day.js";
-import EventController from "./event-controller.js";
+import PointController from "./point-controller.js";
 import ListComponent from "../components/list.js";
 import NoPointsComponent from "../components/no-points.js";
 import SortComponent from "../components/sort.js";
@@ -15,10 +15,11 @@ const Mode = {
 const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
 export default class BoardController {
-  constructor(container, pointsModel, destinationsModel) {
+  constructor(container, pointsModel, destinationsModel, offersModel) {
     this._container = container;
     this._pointsModel = pointsModel;
     this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._listComponent = null;
     this._sortComponent = new SortComponent();
     this._dayComponents = [];
@@ -54,7 +55,7 @@ export default class BoardController {
 
   createEvent() {
     this._mode = Mode.ADDING;
-    this._creatingEvent = new EventController(this._container, this._destinationsModel, this._onViewChange, this._onDataChange);
+    this._creatingEvent = new PointController(this._container, this._destinationsModel, this._offersModel, this._onViewChange, this._onDataChange);
     this._removePointsList();
     this._creatingEvent.render(null);
     this._renderPointsList();
@@ -70,7 +71,7 @@ export default class BoardController {
 
   _renderPoints(container, points) {
     points.forEach((point) => {
-      const newController = new EventController(container, this._destinationsModel, this._onViewChange, this._onDataChange);
+      const newController = new PointController(container, this._destinationsModel, this._offersModel, this._onViewChange, this._onDataChange);
       newController.render(point);
       this._showedPointsControllers.push(newController);
     });
@@ -121,6 +122,10 @@ export default class BoardController {
 
   _updatePoints() {
     this._removePointsList();
+    if (this._pointsModel.getAllPoints().length === 0) {
+      this.render();
+      return;
+    }
     const newPoints = this._pointsModel.getPoints();
     this._renderPointsList(newPoints);
   }

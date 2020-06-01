@@ -1,8 +1,7 @@
-import EditEventComponent, {getShortName, parseDate} from "../components/edit-event.js";
-import EventComponent from "../components/event.js";
+import EditPointComponent, {getShortName, parseDate} from "../components/edit-point.js";
+import PointComponent from "../components/point.js";
 import {render, replace, remove} from "../utils/render.js";
-import {offersByType} from "../mock/point.js";
-import {EVENT_TYPES} from "../const.js";
+import {POINT_TYPES} from "../const.js";
 
 export const Mode = {
   DEFAULT: `default`,
@@ -10,11 +9,11 @@ export const Mode = {
   ADDING: `adding`
 };
 
-const ADDING_NEW_EVENT_CLASS = `trip-events__item`;
+const ADDING_NEW_POINT_CLASS = `trip-points__item`;
 
-const defaultType = EVENT_TYPES[0];
+const defaultType = POINT_TYPES[0];
 
-const EmptyEvent = {
+const EmptyPoint = {
   type: defaultType,
   destination: {
     name: ``,
@@ -28,7 +27,7 @@ const EmptyEvent = {
   isFavorite: false
 };
 
-const parseFormData = (formData, destinationsModel) => {
+const parseFormData = (formData, destinationsModel, offersModel) => {
   const type = formData.get(`event-type`);
   const destinationName = formData.get(`event-destination`);
   const destination = destinationsModel.getDestinationByName(destinationName);
@@ -37,7 +36,7 @@ const parseFormData = (formData, destinationsModel) => {
   const price = parseInt(formData.get(`event-price`), 10);
   const isFavorite = !!(formData.get(`event-favorite`));
   const offersNames = formData.getAll(`event-offer`);
-  const availabledOffers = offersByType[type];
+  const availabledOffers = offersModel.getOffersByType(type).offers;
   const offers = offersNames.map((name) => {
     return availabledOffers.find((offer) => getShortName(offer.title) === name);
   });
@@ -53,86 +52,85 @@ const parseFormData = (formData, destinationsModel) => {
   };
 };
 
-export default class EventController {
-  constructor(container, destinationsModel, onViewChange, onDataChange) {
+export default class PointController {
+  constructor(container, destinationsModel, offersModel, onViewChange, onDataChange) {
     this._container = container;
     this._destinationsModel = destinationsModel;
-    this._eventComponent = null;
-    this._editEventComponent = null;
+    this._offersModel = offersModel;
+    this._pointComponent = null;
+    this._editPointComponent = null;
     this._mode = Mode.DEFAULT;
     this.id = ``;
-    this._event = null;
-    this._offers = [];
+    this._point = null;
     this._onViewChange = onViewChange;
     this._onDataChange = onDataChange;
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(event) {
-    if (!event) {
+  render(point) {
+    if (!point) {
       this._mode = Mode.ADDING;
-      event = Object.assign({}, EmptyEvent);
+      point = Object.assign({}, EmptyPoint);
     }
 
-    this._event = event;
-    this.id = event.id || ``;
-    this._offers = offersByType;
+    this._point = point;
+    this.id = point.id || ``;
 
 
-    const oldEventComponent = this._eventComponent;
-    const oldEditEventComponent = this._editEventComponent;
+    const oldPointComponent = this._pointComponent;
+    const oldEditPointComponent = this._editPointComponent;
 
-    this._eventComponent = new EventComponent(event);
-    this._editEventComponent = new EditEventComponent(event, this._offers, this._destinationsModel, this._mode);
+    this._pointComponent = new PointComponent(point);
+    this._editPointComponent = new EditPointComponent(point, this._offersModel, this._destinationsModel, this._mode);
 
-    this._eventComponent.setRollupButtonClickHandler(() => {
+    this._pointComponent.setRollupButtonClickHandler(() => {
       this._replacePointToEdit();
     });
 
-    this._editEventComponent.setRollupButtonClickHandler(() => {
+    this._editPointComponent.setRollupButtonClickHandler(() => {
       this._replaceEditToPoint();
-      if (this._editEventComponent.isUpdated) {
-        const newData = this._editEventComponent.getUpdatedEvent();
-        this._onDataChange(event, newData);
+      if (this._editPointComponent.isUpdated) {
+        const newData = this._editPointComponent.getUpdatedPoint();
+        this._onDataChange(point, newData);
       }
     });
 
-    this._editEventComponent.setSubmitHandler((evt) => {
+    this._editPointComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
-      const formData = this._editEventComponent.getData();
-      const newData = parseFormData(formData, this._destinationsModel);
+      const formData = this._editPointComponent.getData();
+      const newData = parseFormData(formData, this._destinationsModel, this._offersModel);
       newData.id = this.id || ``;
-      this._onDataChange(event, newData);
+      this._onDataChange(point, newData);
       this._replaceEditToPoint();
     });
 
-    this._editEventComponent.setDeleteClickHandler((evt) => {
+    this._editPointComponent.setDeleteClickHandler((evt) => {
       evt.preventDefault();
       this._replaceEditToPoint();
-      this._onDataChange(event, null);
+      this._onDataChange(point, null);
     });
 
     switch (this._mode) {
       case Mode.DEFAULT:
-        if (oldEventComponent && oldEditEventComponent) {
-          replace(this._eventComponent, oldEventComponent);
-          replace(this._editEventComponent, oldEditEventComponent);
+        if (oldPointComponent && oldEditPointComponent) {
+          replace(this._pointComponent, oldPointComponent);
+          replace(this._editPointComponent, oldEditPointComponent);
           this._replaceEditToPoint();
         } else {
-          render(this._container, this._eventComponent);
+          render(this._container, this._pointComponent);
         }
         break;
       case Mode.EDIT:
-        if (oldEventComponent && oldEditEventComponent) {
-          replace(this._eventComponent, oldEventComponent);
-          replace(this._editEventComponent, oldEditEventComponent);
+        if (oldPointComponent && oldEditPointComponent) {
+          replace(this._pointComponent, oldPointComponent);
+          replace(this._editPointComponent, oldEditPointComponent);
           this._replacePointToEdit();
         }
         break;
       case Mode.ADDING:
-        this._editEventComponent.getElement().classList.add(ADDING_NEW_EVENT_CLASS);
+        this._editPointComponent.getElement().classList.add(ADDING_NEW_POINT_CLASS);
         document.addEventListener(`keydown`, this._onEscKeyDown);
-        render(this._container, this._editEventComponent);
+        render(this._container, this._editPointComponent);
     }
   }
 
@@ -150,8 +148,8 @@ export default class EventController {
   }
 
   destroy() {
-    remove(this._eventComponent);
-    remove(this._editEventComponent);
+    remove(this._pointComponent);
+    remove(this._editPointComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
@@ -159,19 +157,19 @@ export default class EventController {
     if (this._mode !== Mode.ADDING) {
       return;
     }
-    this._onDataChange(EmptyEvent, null);
+    this._onDataChange(EmptyPoint, null);
   }
 
   _replacePointToEdit() {
     this._onViewChange();
-    replace(this._editEventComponent, this._eventComponent);
+    replace(this._editPointComponent, this._pointComponent);
     this._mode = Mode.EDIT;
     document.addEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _replaceEditToPoint() {
-    if (document.contains(this._editEventComponent.getElement())) {
-      replace(this._eventComponent, this._editEventComponent);
+    if (document.contains(this._editPointComponent.getElement())) {
+      replace(this._pointComponent, this._editPointComponent);
     }
     this._mode = Mode.DEFAULT;
     document.removeEventListener(`keydown`, this._onEscKeyDown);
@@ -181,11 +179,11 @@ export default class EventController {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey && evt.target.type !== `text` && evt.target.type !== `number`) {
       this.removeCreatingPoint();
-      if (this._editEventComponent.isUpdated) {
-        const newData = this._editEventComponent.getUpdatedEvent();
-        this._onDataChange(this._event, newData);
+      if (this._editPointComponent.isUpdated) {
+        const newData = this._editPointComponent.getUpdatedpoint();
+        this._onDataChange(this._point, newData);
       }
-      this._editEventComponent.reset();
+      this._editPointComponent.reset();
       this._replaceEditToPoint();
     }
   }

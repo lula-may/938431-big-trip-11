@@ -35,11 +35,23 @@ export default class Filter {
     this._filterComponent = null;
 
     this._onFilterTypeChange = this._onFilterTypeChange.bind(this);
+    this._onDataChange = this._onDataChange.bind(this);
+
+    this._pointsModel.setDataChangeHandler(this._onDataChange);
   }
 
   render() {
+    const allPoints = this._pointsModel.getAllPoints();
+    const areNoFuturePoints = !getFuturePoints(allPoints).length;
+    const areNoPastPoints = !getPastPoints(allPoints).length;
     const oldComponent = this._filterComponent;
-    this._filterComponent = new FilterComponent();
+    this._filterComponent = new FilterComponent(this._activeFilter);
+    if (areNoFuturePoints) {
+      this._filterComponent.disableFilter(FilterType.FUTURE);
+    }
+    if (areNoPastPoints) {
+      this._filterComponent.disableFilter(FilterType.PAST);
+    }
     this._filterComponent.setFilterChangeHandler(this._onFilterTypeChange);
     if (oldComponent) {
       replace(this._filterComponent, oldComponent);
@@ -56,5 +68,9 @@ export default class Filter {
   _onFilterTypeChange(type) {
     this._activeFilter = type;
     this._pointsModel.setFilter(type);
+  }
+
+  _onDataChange() {
+    this.render();
   }
 }

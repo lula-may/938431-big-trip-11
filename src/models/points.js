@@ -13,11 +13,16 @@ export default class Points {
     this._points = [];
     this._activeFilter = FilterType.EVERYTHING;
 
-    this._onFilterChange = null;
+    this._filterChangeHandlers = [];
+    this._dataChangeHandlers = [];
   }
 
   setPoints(points) {
     this._points = sortPointsByDate(points);
+  }
+
+  getAllPoints() {
+    return this._points;
   }
 
   getPoints() {
@@ -36,7 +41,8 @@ export default class Points {
     }
 
     this._points = [...this._points.slice(0, index), newPoint, ...this._points.slice(index + 1)];
-    this._callHandler(this._onDataChange);
+    this._sortPoints();
+    this._callHandlers(this._dataChangeHandlers);
     return true;
   }
 
@@ -46,29 +52,34 @@ export default class Points {
       return false;
     }
     this._points = [...this._points.slice(0, index), ...this._points.slice(index + 1)];
-    this._callHandler(this._onDataChange);
+    this._callHandlers(this._dataChangeHandlers);
     return true;
   }
 
   addPoint(event) {
     this._points.push(event);
-    this._callHandler(this._onDataChange);
+    this._sortPoints();
+    this._callHandlers(this._dataChangeHandlers);
   }
 
   setFilter(filter) {
     this._activeFilter = filter;
-    this._callHandler(this._onFilterChange);
+    this._callHandlers(this._filterChangeHandlers);
   }
 
   setFilterChangeHandler(handler) {
-    this._onFilterChange = handler;
+    this._filterChangeHandlers.push(handler);
   }
 
   setDataChangeHandler(handler) {
-    this._onDataChange = handler;
+    this._dataChangeHandlers.push(handler);
   }
 
-  _callHandler(handler) {
-    handler();
+  _callHandlers(handlers) {
+    handlers.forEach((handler) => handler());
+  }
+
+  _sortPoints() {
+    this._points = sortPointsByDate(this._points);
   }
 }

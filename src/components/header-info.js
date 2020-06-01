@@ -8,7 +8,7 @@ export default class HeaderInfo extends AbstractComponent {
   }
 
   getTemplate() {
-    const points = this._pointsModel.getPoints();
+    const points = this._pointsModel.getAllPoints();
     const info = getHeaderInfo(points);
     const {totalCost, tripTitle, tripDates} = info;
     return (

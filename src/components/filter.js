@@ -32,9 +32,9 @@ const getFilterTemplate = (activeFilter) => {
 };
 
 export default class Filter extends AbstractComponent {
-  constructor() {
+  constructor(activeFilter) {
     super();
-    this._activeFilter = FilterType.EVERYTHING;
+    this._activeFilter = activeFilter;
   }
 
   getTemplate() {
@@ -56,5 +56,9 @@ export default class Filter extends AbstractComponent {
     this._activeFilter = FilterType.EVERYTHING;
     const newActiveElement = this.getElement().querySelector(`#${FILTER_PREFIX}${FilterType.EVERYTHING}`);
     newActiveElement.checked = true;
+  }
+
+  disableFilter(filter) {
+    this.getElement().querySelector(`#${FILTER_PREFIX}${filter}`).disabled = true;
   }
 }

@@ -8,8 +8,9 @@ import {getUniqueDates, getSortedPoints} from "../utils/components-data.js";
 import {SortType, HIDDEN_CLASS} from "../const.js";
 
 const Mode = {
+  ADDING: `adding`,
   DEFAULT: `default`,
-  ADDING: `adding`
+  EDIT: `edit`
 };
 
 const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
@@ -132,12 +133,19 @@ export default class BoardController {
     this._renderPointsList(newPoints);
   }
 
-  _onViewChange() {
-    this._showedPointsControllers.forEach((controller) => controller.setDefaultView());
-    if (this._creatingEvent) {
-      this._creatingEvent.destroy();
-      this._creatingEvent = null;
-      newEventButtonElement.disabled = false;
+  _onViewChange(mode = Mode.EDIT) {
+    switch (mode) {
+      case Mode.DEFAULT: {
+        this._updatePoints();
+        break;
+      }
+      default:
+        this._showedPointsControllers.forEach((controller) => controller.setDefaultView());
+        if (this._creatingEvent) {
+          this._creatingEvent.destroy();
+          this._creatingEvent = null;
+          newEventButtonElement.disabled = false;
+        }
     }
   }
 
@@ -151,24 +159,25 @@ export default class BoardController {
     if (this._mode === Mode.ADDING && !oldData.id) {
       if (newData === null) {
         this._creatingEvent.destroy();
-        this._updatePoints();
         this._creatingEvent = null;
         this._mode = Mode.DEFAULT;
         newEventButtonElement.disabled = false;
+        return Promise.resolve();
       } else {
-        this._api.createPoint(newData)
-        .then((pointModel) => {
-          this._pointsModel.addPoint(pointModel);
-          this._showedPointsControllers.push(this._creatingEvent);
-          this._updatePoints();
-          this._creatingEvent = null;
-          this._mode = Mode.DEFAULT;
-          newEventButtonElement.disabled = false;
-        });
+        return this._api.createPoint(newData)
+          .then((pointModel) => {
+            this._pointsModel.addPoint(pointModel);
+            this._showedPointsControllers.push(this._creatingEvent);
+            this._updatePoints();
+            this._creatingEvent = null;
+            this._mode = Mode.DEFAULT;
+            newEventButtonElement.disabled = false;
+          });
       }
-    } else if (newData === null) {
+    }
+    if (newData === null) {
     // Удаление точки маршрута
-      this._api.deletePoint(oldData.id)
+      return this._api.deletePoint(oldData.id)
         .then(() => {
           const isSuccess = this._pointsModel.deletePoint(oldData.id);
           if (isSuccess) {
@@ -177,11 +186,11 @@ export default class BoardController {
         });
     } else {
       // Редактирование точки маршрута
-      this._api.updatePoint(oldData.id, newData)
+      return this._api.updatePoint(oldData.id, newData)
         .then((pointModel) => {
           const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
           if (isSuccess) {
-            this._updatePoints();
+            this._showedPointsControllers.forEach((controller) => controller.rerender(oldData.id, newData));
           }
         });
     }

@@ -2,7 +2,7 @@ import Destination from "./destination.js";
 
 export default class Point {
   constructor(data) {
-    this.id = data[`id`];
+    this.id = data[`id`] || ``;
     this.type = data[`type`];
     this.dateFrom = data[`date_from`] ? new Date(data[`date_from`]) : null;
     this.dateTo = data[`date_to`] ? new Date(data[`date_to`]) : null;

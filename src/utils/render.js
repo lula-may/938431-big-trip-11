@@ -20,6 +20,9 @@ const render = (container, component, place = `beforeend`) => {
 };
 
 const remove = (component) => {
+  if (!component) {
+    return;
+  }
   component.getElement().remove();
   component.removeElement();
 };

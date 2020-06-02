@@ -58,6 +58,8 @@ export default class PointController {
     this._offersModel = offersModel;
     this._pointComponent = null;
     this._editPointComponent = null;
+    this._updatedEditPointComponent = null;
+    this._changedControl = null;
     this._mode = Mode.DEFAULT;
     this._point = null;
     this._onViewChange = onViewChange;
@@ -72,62 +74,88 @@ export default class PointController {
     }
 
     this._point = point;
+    this._createEditPointComponent();
 
+    switch (this._mode) {
+      case Mode.ADDING:
+        this._editPointComponent.getElement().classList.add(ADDING_NEW_POINT_CLASS);
+        render(this._container, this._editPointComponent);
+        document.addEventListener(`keydown`, this._onEscKeyDown);
+        break;
+      default:
+        this._renderPoint();
+    }
+  }
 
-    const oldPointComponent = this._pointComponent;
-    const oldEditPointComponent = this._editPointComponent;
-
-    this._pointComponent = new PointComponent(point);
-    this._editPointComponent = new EditPointComponent(point, this._offersModel, this._destinationsModel, this._mode);
-
-    this._pointComponent.setRollupButtonClickHandler(() => {
-      this._replacePointToEdit();
-    });
-
+  _setEditFormHandlers() {
     this._editPointComponent.setRollupButtonClickHandler(() => {
       this._replaceEditToPoint();
-      if (this._editPointComponent.isUpdated) {
-        const newData = this._editPointComponent.getUpdatedPoint();
-        this._onDataChange(point, newData);
-      }
     });
 
     this._editPointComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
       const formData = this._editPointComponent.getData();
+      this._editPointComponent.disableControls();
+      this._editPointComponent.setButtonText({saveButtonText: `Saving...`});
       const newData = parseFormData(formData, this._destinationsModel, this._offersModel);
-      newData.id = this._point.id;
-      this._onDataChange(point, newData);
-      this._replaceEditToPoint();
+      this._onDataChange(this._point, newData)
+        .then(() => {
+          this._replaceEditToPoint();
+          this._onViewChange(Mode.DEFAULT);
+        })
+        .catch(() => {
+          this._editPointComponent.enableControls();
+          this._editPointComponent.resetButtonText();
+        });
     });
 
     this._editPointComponent.setDeleteClickHandler((evt) => {
       evt.preventDefault();
-      this._replaceEditToPoint();
-      this._onDataChange(point, null);
+      this._editPointComponent.disableControls();
+      this._editPointComponent.setButtonText({deleteButtonText: `Deleting...`});
+      this._onDataChange(this._point, null)
+        .catch(() => {
+          this._editPointComponent.enableControls();
+          this._editPointComponent.resetButtonText();
+        });
     });
 
-    switch (this._mode) {
-      case Mode.DEFAULT:
-        if (oldPointComponent && oldEditPointComponent) {
-          replace(this._pointComponent, oldPointComponent);
-          replace(this._editPointComponent, oldEditPointComponent);
-          this._replaceEditToPoint();
-        } else {
-          render(this._container, this._pointComponent);
-        }
-        break;
-      case Mode.EDIT:
-        if (oldPointComponent && oldEditPointComponent) {
-          replace(this._pointComponent, oldPointComponent);
-          replace(this._editPointComponent, oldEditPointComponent);
-          this._replacePointToEdit();
-        }
-        break;
-      case Mode.ADDING:
-        this._editPointComponent.getElement().classList.add(ADDING_NEW_POINT_CLASS);
-        document.addEventListener(`keydown`, this._onEscKeyDown);
-        render(this._container, this._editPointComponent);
+    this._editPointComponent.setFavoriteButtonClickHandler(() => {
+      const newData = PointModel.clone(this._point);
+      newData.isFavorite = !newData.isFavorite;
+      this._onDataChange(this._point, newData)
+        .then(() => this._editPointComponent.enableControls())
+        .catch(() => {
+          this._editPointComponent.undoChanges();
+        });
+    });
+
+  }
+
+  _createEditPointComponent() {
+    const point = this._point;
+    const oldEditPointComponent = this._editPointComponent;
+
+    this._updatedEditPointComponent = new EditPointComponent(point, this._offersModel, this._destinationsModel, this._mode);
+    if (!oldEditPointComponent || this._mode === Mode.DEFAULT) {
+      this._editPointComponent = this._updatedEditPointComponent;
+      this._updatedEditPointComponent = null;
+      this._setEditFormHandlers();
+    }
+  }
+
+  _renderPoint() {
+    const oldPointComponent = this._pointComponent;
+    this._pointComponent = new PointComponent(this._point);
+
+    this._pointComponent.setRollupButtonClickHandler(() => {
+      this._replacePointToEdit();
+    });
+
+    if (oldPointComponent) {
+      replace(this._pointComponent, oldPointComponent);
+    } else {
+      render(this._container, this._pointComponent);
     }
   }
 
@@ -168,6 +196,13 @@ export default class PointController {
     if (document.contains(this._editPointComponent.getElement())) {
       replace(this._pointComponent, this._editPointComponent);
     }
+
+    if (this._updatedEditPointComponent) {
+      this._editPointComponent = this._updatedEditPointComponent;
+      this._setEditFormHandlers();
+      this._updatedEditPointComponent = null;
+    }
+
     this._mode = Mode.DEFAULT;
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
@@ -176,11 +211,6 @@ export default class PointController {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey && evt.target.type !== `text` && evt.target.type !== `number`) {
       this.removeCreatingPoint();
-      if (this._editPointComponent.isUpdated) {
-        const newData = this._editPointComponent.getUpdatedPoint();
-        this._onDataChange(this._point, newData);
-      }
-      this._editPointComponent.reset();
       this._replaceEditToPoint();
     }
   }

@@ -225,9 +225,8 @@ export default class EditEvent extends AbstractSmartComponent {
     this._offersModel = offersModel;
     this._availableDestinations = this._destinationsModel.getDestinations().map((item) => item.name);
     this._mode = mode;
+    this._changedControl = null;
 
-    this._updatedPoint = Object.assign({}, point);
-    this.isUpdated = false;
     this._dateFromFlatpicker = null;
     this._dateToFlatpicker = null;
 
@@ -271,6 +270,7 @@ export default class EditEvent extends AbstractSmartComponent {
     this.setRollupButtonClickHandler(this._rollupHandler);
     this.setSubmitHandler(this._submitHandler);
     this.setDeleteClickHandler(this._deleteClickHandler);
+    this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
     this._subscribeOnEvents();
   }
 
@@ -294,6 +294,17 @@ export default class EditEvent extends AbstractSmartComponent {
     this._deleteClickHandler = handler;
   }
 
+  setFavoriteButtonClickHandler(handler) {
+    const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
+    if (favoriteButtonElement) {
+      favoriteButtonElement.addEventListener(`click`, (evt) => {
+        this._changedControl = evt.target;
+        handler();
+      });
+      this._favoriteButtonClickHandler = handler;
+    }
+  }
+
   reset() {
     const point = this._point;
     this._type = point.type;
@@ -305,10 +316,44 @@ export default class EditEvent extends AbstractSmartComponent {
     this.rerender();
   }
 
+  disableControls() {
+    const controls = this.getElement().querySelectorAll(`button, input`);
+    controls.forEach((control) => {
+      control.disabled = true;
+    });
+  }
+
+  enableControls() {
+    const controls = this.getElement().querySelectorAll(`input:disabled, button:disabled`);
+    controls.forEach((control) => {
+      control.disabled = false;
+    });
+  }
+
+  undoChanges() {
+    this._changedControl.checked = !this._changedControl.checked;
+    this._changedControl = null;
+    this.enableControls();
+  }
+
   getData() {
     const form = this.getElement();
     const data = new FormData(form);
     return data;
+  }
+
+  setButtonText({deleteButtonText, saveButtonText}) {
+    if (deleteButtonText && this._mode !== Mode.ADDING) {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = deleteButtonText;
+    }
+
+    if (saveButtonText) {
+      this.getElement().querySelector(`.event__save-btn`).textContent = saveButtonText;
+    }
+  }
+
+  resetButtonText() {
+    this.setButtonText({deleteButtonText: `Delete`, saveButtonText: `Save`});
   }
 
   _applyFlatpickers() {
@@ -383,16 +428,6 @@ export default class EditEvent extends AbstractSmartComponent {
     element.querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
       this._price = evt.target.value;
     });
-
-    // Обработчик клика по кнопке Favorite
-    const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
-    if (favoriteButtonElement) {
-      favoriteButtonElement.addEventListener(`click`, () => {
-        this._updatedPoint.isFavorite = !this._updatedPoint.isFavorite;
-        this.isUpdated = !this.isUpdated;
-      });
-    }
-
   }
 
   _setDestinationInputValidity() {

@@ -8,7 +8,7 @@ import {POINT_TYPES} from "../const.js";
 
 const ERROR_CLASS = `shake`;
 const SHAKE_ANIMATION_TIMOUT = 600; // ms
-const ADDING_NEW_POINT_CLASS = `trip-points__item`;
+const ADDING_NEW_POINT_CLASS = `trip-events__item`;
 
 export const Mode = {
   DEFAULT: `default`,
@@ -82,8 +82,8 @@ export default class PointController {
 
     switch (this._mode) {
       case Mode.ADDING:
-        this._editPointComponent.getElement().classList.add(ADDING_NEW_POINT_CLASS);
         render(this._container, this._editPointComponent);
+        this._editPointComponent.getElement().classList.add(ADDING_NEW_POINT_CLASS);
         document.addEventListener(`keydown`, this._onEscKeyDown);
         break;
       default:

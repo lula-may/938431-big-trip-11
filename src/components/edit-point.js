@@ -7,7 +7,11 @@ import "flatpickr/dist/flatpickr.min.css";
 import {Mode} from "../controllers/point-controller.js";
 
 export const getShortName = (text) => {
-  return text.split(` `).pop().toLowerCase();
+  return text
+    .split(` `)
+    .slice(length - 2)
+    .join(`-`)
+    .toLowerCase();
 };
 
 export const parseDate = (date) => flatpickr.parseDate(date, `d/m/y H:i`);
@@ -376,6 +380,7 @@ export default class EditEvent extends AbstractSmartComponent {
       defaultDate: this._dateFrom || `today`,
       enableTime: true,
       dateFormat: `d/m/y H:i`,
+      maxDate: this._dateTo,
       onChange: (days) => {
         this._dateFrom = days[0];
         if (this._dateTo < this._dateFrom) {
@@ -396,6 +401,7 @@ export default class EditEvent extends AbstractSmartComponent {
       minDate: this._dateFrom,
       onChange: (days) => {
         this._dateTo = days[0];
+        this._dateFromFlatpicker.set(`maxDate`, this._dateTo);
       }
     });
   }
@@ -406,23 +412,27 @@ export default class EditEvent extends AbstractSmartComponent {
 
     // Обработчик изменения типа события
     element.querySelector(`.event__type-list`)
-      .addEventListener(`change`, (evt) => {
-        if (evt.target.tagName !== `INPUT`) {
-          return;
-        }
-        this._type = evt.target.value;
-        this.rerender();
-      });
+    .addEventListener(`change`, (evt) => {
+      if (evt.target.tagName !== `INPUT`) {
+        return;
+      }
+      this._type = evt.target.value;
+      this.rerender();
+    });
 
     // Обработчики изменения места назначения
     destinationInputElement.addEventListener(`input`, () => {
       this._setDestinationInputValidity();
       if (!destinationInputElement.checkValidity()) {
-        return;
+        destinationInputElement.value = ``;
       }
     });
 
     destinationInputElement.addEventListener(`change`, (evt) => {
+      if (!destinationInputElement.checkValidity()) {
+        destinationInputElement.value = ``;
+        return;
+      }
       this._destination = this._destinationsModel.getDestinationByName(evt.target.value);
       this.rerender();
     });
@@ -435,8 +445,8 @@ export default class EditEvent extends AbstractSmartComponent {
 
   _setDestinationInputValidity() {
     const inputElement = this.getElement().querySelector(`.event__input--destination`);
+    const matchesToOption = this._availableDestinations.some((destination) => destination === inputElement.value);
 
-    const matchesToOption = this._availableDestinations.some((destination) => destination.name === inputElement.value);
     if (!matchesToOption) {
       inputElement.setCustomValidity(`Please choose one of the options from the list`);
     } else {

@@ -199,16 +199,15 @@ export default class BoardController {
             this._updatePoints();
           }
         });
-    } else {
-      // Редактирование точки маршрута
-      return this._api.updatePoint(oldData.id, newData)
-        .then((pointModel) => {
-          const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
-          if (isSuccess) {
-            this._showedPointsControllers.forEach((controller) => controller.rerender(oldData.id, newData));
-          }
-        });
     }
+    // Редактирование точки маршрута
+    return this._api.updatePoint(oldData.id, newData)
+      .then((pointModel) => {
+        const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
+        if (isSuccess) {
+          this._showedPointsControllers.forEach((controller) => controller.rerender(oldData.id, newData));
+        }
+      });
   }
 
   _onFilterTypeChange() {

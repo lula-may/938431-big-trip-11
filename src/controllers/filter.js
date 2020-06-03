@@ -5,7 +5,7 @@ import {render, replace} from "../utils/render.js";
 const today = new Date();
 
 const getFuturePoints = (points) => {
-  return points.slice().filter((point) => point.dateTo > today);
+  return points.slice().filter((point) => point.dateFrom > today);
 };
 
 const getPastPoints = (points) => {

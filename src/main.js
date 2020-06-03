@@ -11,10 +11,9 @@ import OffersModel from "./models/offers.js";
 import PointsModel from "./models/points.js";
 
 import {render} from "./utils/render.js";
-// import {generatePoints, generateDestinations} from "./mock/point.js";
 import {FilterType} from "./const.js";
 
-const AUTHORIZATION = `Basic O8eU4-mx&qlwg`;
+const AUTHORIZATION = `Basic O8eU4-mx&qlpg`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
 const headerContainerElement = document.querySelector(`.trip-main`);
@@ -28,9 +27,6 @@ const mainNavComponent = new MainNavComponent();
 const pointsModel = new PointsModel();
 const destinationsModel = new DestinationsModel();
 const offersModel = new OffersModel();
-
-// const points = generatePoints(POINTS_AMOUNT);
-// const destinations = generateDestinations();
 
 const headerController = new HeaderController(headerContainerElement, pointsModel);
 const statisticsComponent = new StatisticsComponent(pointsModel);

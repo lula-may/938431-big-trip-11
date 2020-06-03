@@ -3,6 +3,7 @@ import PointController from "./point-controller.js";
 import ListComponent from "../components/list.js";
 import NoPointsComponent from "../components/no-points.js";
 import SortComponent from "../components/sort.js";
+
 import {render, remove} from "../utils/render.js";
 import {getUniqueDates, getSortedPoints} from "../utils/components-data.js";
 import {SortType, HIDDEN_CLASS} from "../const.js";
@@ -25,6 +26,7 @@ export default class BoardController {
 
     this._listComponent = null;
     this._sortComponent = new SortComponent();
+    this._noPointsComponent = null;
     this._dayComponents = [];
     this._showedPointsControllers = [];
     this._creatingEvent = null;
@@ -41,8 +43,9 @@ export default class BoardController {
   }
 
   render() {
-    if (!this._pointsModel.getPoints().length) {
-      render(this._container, new NoPointsComponent());
+    if (this._pointsModel.isEmpty()) {
+      this._noPointsComponent = new NoPointsComponent();
+      render(this._container, this._noPointsComponent);
       return;
     }
 
@@ -59,7 +62,14 @@ export default class BoardController {
   createEvent() {
     this._mode = Mode.ADDING;
     this._creatingEvent = new PointController(this._container, this._destinationsModel, this._offersModel, this._onViewChange, this._onDataChange);
-    this._removePointsList();
+
+    if (this._noPointsComponent) {
+      remove(this._noPointsComponent);
+      this._noPointsComponent = null;
+    } else {
+      this._removePointsList();
+    }
+
     this._creatingEvent.render(null);
     this._renderPointsList();
   }
@@ -145,6 +155,7 @@ export default class BoardController {
           this._creatingEvent.destroy();
           this._creatingEvent = null;
           newEventButtonElement.disabled = false;
+          this._mode = Mode.DEFAULT;
         }
     }
   }
@@ -162,6 +173,10 @@ export default class BoardController {
         this._creatingEvent = null;
         this._mode = Mode.DEFAULT;
         newEventButtonElement.disabled = false;
+        if (this._pointsModel.isEmpty()) {
+          this._noPointsComponent = new NoPointsComponent();
+          render(this._container, this._noPointsComponent);
+        }
         return Promise.resolve();
       } else {
         return this._api.createPoint(newData)

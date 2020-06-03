@@ -1,4 +1,5 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
+
 import {MEANS_OF_TRANSPORT, PLACES} from "../const.js";
 import {capitalizeFirstLetter, getEventTitle, formatFullDate} from "../utils/common.js";
 import flatpickr from "flatpickr";
@@ -331,9 +332,11 @@ export default class EditEvent extends AbstractSmartComponent {
   }
 
   undoChanges() {
+    if (!this._changedControl) {
+      return;
+    }
     this._changedControl.checked = !this._changedControl.checked;
     this._changedControl = null;
-    this.enableControls();
   }
 
   getData() {

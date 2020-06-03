@@ -26,6 +26,9 @@ export default class MainNav extends AbstractComponent {
   }
 
   setActiveItem(id) {
+    if (this._activeItem === id) {
+      return;
+    }
     const oldActiveItem = this.getElement().querySelector(`#${this._activeItem}`);
     const newActiveItem = this.getElement().querySelector(`#${id}`);
     this._activeItem = id;

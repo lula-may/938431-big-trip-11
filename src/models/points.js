@@ -34,6 +34,10 @@ export default class Points {
     return sortPointsByDate(points);
   }
 
+  isEmpty() {
+    return this._points.length === 0;
+  }
+
   updatePoint(id, newPoint) {
     const index = this._points.findIndex((item) => item.id === id);
     if (index === -1) {
@@ -63,6 +67,9 @@ export default class Points {
   }
 
   setFilter(filter) {
+    if (filter === this._activeFilter) {
+      return;
+    }
     this._activeFilter = filter;
     this._callHandlers(this._filterChangeHandlers);
   }

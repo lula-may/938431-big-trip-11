@@ -19,12 +19,20 @@ const getDuration = (point) => {
 
 const getTotalCost = (points) => {
   return points.length
-    ? points.map((item) => item.price)
-      .reduce((acc, value) => {
-        acc += value;
+    ? points
+      .reduce((acc, point) => {
+        acc += point.price;
+        acc += getOffersTotalCost(point);
         return acc;
       }, 0)
     : 0;
+};
+
+const getOffersTotalCost = (point) => {
+  return point.offers.reduce((acc, offer) => {
+    acc += offer.price;
+    return acc;
+  }, 0);
 };
 
 const getTripTitle = (points) => {
